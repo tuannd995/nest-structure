@@ -9,9 +9,10 @@ export const TypeOrmConfig: any = {
   migrationsRun: false,
   migrationsTableName: 'migrations',
   migrations: [__dirname + '/../**/*.migration{.ts,.js}'],
-  cli: { migrationsDir: 'migration' },
+  cli: { migrationsDir: 'migrations' },
   keepConnectionAlive: false,
   logging: process.env.DB_LOGGING === 'true',
   synchronize: false,
   timezone: 'UTC',
+  autoLoadEntities: true,
 };
