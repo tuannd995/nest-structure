@@ -1,4 +1,4 @@
-import { User } from './../entity/user.entity';
+import { User } from '../entity/user.entity';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class projectmanager1634525414817 implements MigrationInterface {
