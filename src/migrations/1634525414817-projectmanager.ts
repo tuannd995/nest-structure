@@ -1,5 +1,6 @@
 import { User } from '../user/entities/user.entity';
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { hash } from 'bcryptjs';
 
 export class projectmanager1634525414817 implements MigrationInterface {
   name = 'projectmanager1634525414817';
@@ -23,7 +24,7 @@ export class projectmanager1634525414817 implements MigrationInterface {
     await queryRunner.manager.save(User, {
       username: 'admin',
       email: 'duyhiep@gamil.com',
-      password: '111111',
+      password: await hash('111111', 10),
       firstName: 'Duy',
       lastName: 'Hiep',
       role: 'admin',

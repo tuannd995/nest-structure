@@ -1,42 +1,72 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
+  // @Post()
+  // async createOneUser(@Body() createUserDto: CreateUserDto) {
+  //   // createUserDto.avatar = file.path;
+  //   const data = await this.userService.createOneUser(createUserDto);
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
+  //   return {
+  //     message: 'User created',
+  //     error: false,
+  //     users: data,
+  //   };
+  // }
+  // @Post('/import')
+  // async importUsers(@Body() users: CreateUserDto[]) {
+  //   const data = await this.userService.importUsers(users);
+  //   return {
+  //     message: 'Import users successfully',
+  //     error: false,
+  //     users: data,
+  //   };
+  // }
+
+  // @Get()
+  // async findAll() {
+  //   const data = await this.userService.findAll();
+  //   return {
+  //     message: 'get user lists successfully',
+  //     error: false,
+  //     users: data,
+  //   };
+  // }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const data = await this.userService.findOne({ id });
+    return {
+      message: 'get user info successfully',
+      error: false,
+      user: data,
+    };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
+  // @Put(':id')
+  // async update(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Body() updateUserDto: UpdateUserDto,
+  // ) {
+  //   const data = await this.userService.update(id, updateUserDto);
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
-  }
+  //   return {
+  //     message: 'Updated',
+  //     error: false,
+  //     user: data,
+  //   };
+  // }
+
+  // @Delete(':id')
+  // async remove(@Param('id', ParseIntPipe) id: number) {
+  //   const data = await this.userService.remove(id);
+  //   return {
+  //     message: `Deleted user with id ${id}`,
+  //     error: false,
+  //     user: data,
+  //   };
+  // }
 }
