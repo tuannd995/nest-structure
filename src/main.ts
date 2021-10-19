@@ -6,8 +6,9 @@ import { DatabaseMiddleware } from './middlewares/DatabaseMiddleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.enableCors();
   app.use(new DatabaseMiddleware().use);
-  await app.listen(3003);
+  await app.listen(5000);
 }
 bootstrap();
