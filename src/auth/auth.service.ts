@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcryptjs';
@@ -29,5 +30,9 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload),
     };
+  }
+  getUserInfo(accessToken: string) {
+    const jwt = this.jwtService.verifyAsync(accessToken);
+    return jwt;
   }
 }
