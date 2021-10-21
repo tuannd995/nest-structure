@@ -16,7 +16,7 @@ export class AuthController {
     const accessToken = await this.authService.login(user);
     return {
       message: 'Login successfully',
-      accessToken,
+      accessToken: accessToken,
     };
   }
   @UseGuards(JwtAuthGuard)
