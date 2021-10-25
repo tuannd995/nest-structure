@@ -38,8 +38,8 @@ export class User {
     select: false,
   })
   password: string;
-  @Column({ name: 'avatar', type: 'longblob', nullable: true })
-  avatar: any;
+  @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
+  avatar: string;
   @Column({ name: 'first_name', type: 'varchar', length: 50, nullable: false })
   firstName: string;
   @Column({ name: 'last_name', type: 'varchar', length: 50, nullable: false })
@@ -48,8 +48,8 @@ export class User {
   dateOfBirth: Date;
   @Column({ name: 'role', type: 'enum', nullable: false, enum: Role })
   role: string;
-  @Column({ name: 'status', type: 'tinyint', default: 1, nullable: false })
-  status: number;
+  @Column({ name: 'status', type: 'boolean', default: true, nullable: false })
+  status: boolean;
   @CreateDateColumn({ name: 'created_at', type: 'datetime' })
   createdAt: Date;
   @Column({ name: 'updated_at', type: 'datetime' })

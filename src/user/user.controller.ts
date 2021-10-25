@@ -1,72 +1,90 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { Auth } from 'src/common/decorators/auth.decorator';
+import { Response, Role } from 'src/utils/types';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Post()
-  // async createOneUser(@Body() createUserDto: CreateUserDto) {
-  //   // createUserDto.avatar = file.path;
-  //   const data = await this.userService.createOneUser(createUserDto);
-
-  //   return {
-  //     message: 'User created',
-  //     error: false,
-  //     users: data,
-  //   };
-  // }
-  // @Post('/import')
-  // async importUsers(@Body() users: CreateUserDto[]) {
-  //   const data = await this.userService.importUsers(users);
-  //   return {
-  //     message: 'Import users successfully',
-  //     error: false,
-  //     users: data,
-  //   };
-  // }
-
-  // @Get()
-  // async findAll() {
-  //   const data = await this.userService.findAll();
-  //   return {
-  //     message: 'get user lists successfully',
-  //     error: false,
-  //     users: data,
-  //   };
-  // }
-
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const data = await this.userService.findOne({ id });
+  @Auth(Role.Admin)
+  @Get()
+  async findAll(): Promise<Response> {
+    const data = await this.userService.findAll();
     return {
-      message: 'get user info successfully',
+      message: 'Get user lists successfully',
       error: false,
-      user: data,
+      data: data,
     };
   }
 
-  // @Put(':id')
-  // async update(
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body() updateUserDto: UpdateUserDto,
-  // ) {
-  //   const data = await this.userService.update(id, updateUserDto);
+  @Get(':id')
+  async getUser(@Param('id', ParseIntPipe) id: number): Promise<Response> {
+    const data = await this.userService.getOneUser(id);
+    return {
+      message: 'Get user successfully',
+      error: false,
+      data: data,
+    };
+  }
 
-  //   return {
-  //     message: 'Updated',
-  //     error: false,
-  //     user: data,
-  //   };
-  // }
+  @Auth(Role.Admin)
+  @Post()
+  async createOneUser(@Body() createUserDto: CreateUserDto): Promise<Response> {
+    const data = await this.userService.createOneUser(createUserDto);
 
-  // @Delete(':id')
-  // async remove(@Param('id', ParseIntPipe) id: number) {
-  //   const data = await this.userService.remove(id);
-  //   return {
-  //     message: `Deleted user with id ${id}`,
-  //     error: false,
-  //     user: data,
-  //   };
-  // }
+    return {
+      message: 'User created',
+      error: false,
+      data: data,
+    };
+  }
+
+  @Auth(Role.Admin, Role.Member, Role.PM)
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<Response> {
+    const data = await this.userService.update(id, updateUserDto);
+
+    return {
+      message: `Updated user with id ${id}`,
+      error: false,
+      data: data,
+    };
+  }
+
+  @Auth(Role.Admin)
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Response> {
+    const data = await this.userService.remove(id);
+    return {
+      message: `Deleted user with id ${id}`,
+      error: false,
+      data: data,
+    };
+  }
+
+  @Auth(Role.Admin)
+  @Post('/import')
+  async importUsers(@Body() users: CreateUserDto[]): Promise<Response> {
+    const data = await this.userService.importUsers(users);
+    return {
+      message: 'Import users successfully',
+      error: false,
+      data: data,
+    };
+  }
 }

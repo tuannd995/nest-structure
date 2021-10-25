@@ -7,7 +7,7 @@ export class projectmanager1634525414817 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      'CREATE TABLE IF NOT EXISTS `projectmanager`.`users` (`id` bigint(8) NOT NULL AUTO_INCREMENT,`username` varchar(20) NOT NULL,`email` varchar(50) NOT NULL,`password` varchar(100) NOT NULL,`first_name` varchar(50) NOT NULL,`last_name` varchar(50) NOT NULL,`status` tinyint(1) NOT NULL DEFAULT 1,`role` enum("admin", "pm", "member") NOT NULL DEFAULT "member",`birth_date` date NULL,`created_at` datetime NOT NULL DEFAULT NOW(),`updated_at` datetime NOT NULL DEFAULT NOW(),`avatar` longblob NULL,PRIMARY KEY (`id`),UNIQUE INDEX `username_UNIQUE` (`username` ASC),UNIQUE INDEX `email_UNIQUE` (`email` ASC),UNIQUE INDEX `id_UNIQUE` (`id` ASC)) ENGINE = InnoDB',
+      'CREATE TABLE IF NOT EXISTS `projectmanager`.`users` (`id` bigint(8) NOT NULL AUTO_INCREMENT,`username` varchar(20) NOT NULL,`email` varchar(50) NOT NULL,`password` varchar(100) NOT NULL,`first_name` varchar(50) NOT NULL,`last_name` varchar(50) NOT NULL,`status` tinyint(1) NOT NULL DEFAULT 1,`role` enum("admin", "pm", "member") NOT NULL DEFAULT "member",`birth_date` date NULL,`created_at` datetime NOT NULL DEFAULT NOW(),`updated_at` datetime NOT NULL DEFAULT NOW(),`avatar` varchar(255) NULL,PRIMARY KEY (`id`),UNIQUE INDEX `username_UNIQUE` (`username` ASC),UNIQUE INDEX `email_UNIQUE` (`email` ASC),UNIQUE INDEX `id_UNIQUE` (`id` ASC)) ENGINE = InnoDB',
     );
     await queryRunner.query(
       'CREATE TABLE IF NOT EXISTS `projectmanager`.`projects` (`id` bigint(8) NOT NULL AUTO_INCREMENT,`pm_id` bigint(8) NOT NULL,`name` varchar(255) NOT NULL,`client` varchar(255) NOT NULL,`description` text NULL,`start_date` date NULL,`end_date` date NULL,`created_at` datetime NOT NULL DEFAULT NOW(),`updated_at` datetime NOT NULL DEFAULT NOW(),`status` tinyint NOT NULL DEFAULT 1,PRIMARY KEY (`id`, `pm_id`),UNIQUE INDEX `id_UNIQUE` (`id` ASC) ,UNIQUE INDEX `name_UNIQUE` (`name` ASC),INDEX `fk_projects_users1_idx` (`pm_id` ASC),CONSTRAINT `fk_projects_users1`FOREIGN KEY (`pm_id`)REFERENCES `projectmanager`.`users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION) ENGINE = InnoDB',
@@ -23,12 +23,12 @@ export class projectmanager1634525414817 implements MigrationInterface {
     );
     await queryRunner.manager.save(User, {
       username: 'admin',
-      email: 'duyhiep@gamil.com',
+      email: 'duyhiep@gmail.com',
       password: await hash('111111', 10),
       firstName: 'Duy',
       lastName: 'Hiep',
       role: 'admin',
-      status: 1,
+      status: true,
     });
   }
 

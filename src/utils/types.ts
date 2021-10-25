@@ -3,3 +3,9 @@ export enum Role {
   PM = 'pm',
   Member = 'member',
 }
+
+export type Response = {
+  message: string;
+  error: boolean;
+  data: any;
+};

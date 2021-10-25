@@ -23,12 +23,12 @@ export class AuthService {
     return null;
   }
 
-  login(user: User) {
+  async login(user: User): Promise<string> {
     const payload = { sub: user.id };
 
     return this.jwtService.sign(payload);
   }
-  getUserInfo(accessToken: string) {
+  async getUserInfo(accessToken: string): Promise<string> {
     const jwt = this.jwtService.verifyAsync(accessToken);
     return jwt;
   }
