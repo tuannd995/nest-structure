@@ -5,12 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { removeImageInServer, convertAvatarToPath } from './functions';
 import { Repository } from 'typeorm';
-
 import { CreateUserDto } from './dto/create-user.dto';
+import { FilterDto } from './dto/filter.dto';
+import { PaginationDto } from './dto/pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { convertAvatarToPath, removeImageInServer } from './functions';
+import { hash } from 'bcryptjs';
 
 interface UserFindData {
   id?: number;
@@ -63,6 +65,7 @@ export class UserService {
     if (createUserDto.avatar) {
       createUserDto.avatar = convertAvatarToPath(createUserDto.avatar);
     }
+    createUserDto.password = await hash('111111', 10);
 
     const newUser = this.userRepository.create(createUserDto);
     const user = await this.userRepository.save(newUser);
@@ -71,13 +74,40 @@ export class UserService {
   }
 
   // find all user
-  async findAll() {
-    const userList = await this.userRepository.find();
+  async getUsers(filter: FilterDto) {
+    const { page, limit, keyword, dob, role, status } = filter;
+    const _limit = limit ? limit : 10;
+    const startIndex = (page - 1) * _limit;
+
+    const total = await this.userRepository.count();
+    const lastPage = Math.ceil(total / _limit);
+    const _keyword = `"%${keyword ? keyword : ''}%"`;
+    const roleQuery = `user.role like "${role ? `${role}` : `%%`}"`;
+    const dobQuery = `user.dateOfBirth like "${dob ? `${dob}` : `%%`}"`;
+    const statusQuery = `user.status like "${status ? `${status}` : `%%`}"`;
+    const keywordQuery = `(user.firstName like ${_keyword} or user.firstName like ${_keyword} or user.username like ${_keyword} or user.email like ${_keyword})`;
+    const query = `${keywordQuery} and ${roleQuery} and ${dobQuery} and ${statusQuery}`;
+
+    const userList = await this.userRepository
+      .createQueryBuilder('user')
+      .where(query)
+      .skip(startIndex)
+      .take(_limit)
+      .getMany();
+    const paginationObj: PaginationDto = {
+      page: page,
+      total: total,
+      limit: _limit,
+      lastPage: lastPage,
+    };
     if (!userList) {
       throw new NotFoundException();
     }
 
-    return userList;
+    return {
+      userList,
+      paginationObj,
+    };
   }
   // update user
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -89,7 +119,6 @@ export class UserService {
 
     const editedUser = Object.assign(user, updateUserDto);
     editedUser.updatedAt = new Date();
-    console.log({ editedUser });
 
     const _user = await this.userRepository.save(editedUser);
     delete _user.password;
@@ -117,6 +146,8 @@ export class UserService {
       if (_users.length === 0) {
         throw new NotAcceptableException('All users already exist');
       }
+      const pass = await hash('111111', 10);
+      _users.forEach(async (user) => (user.password = pass));
       return this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');

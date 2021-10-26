@@ -1,12 +1,14 @@
 import {
-  IsBoolean,
   IsDate,
   IsEmail,
   IsEnum,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 import { Role } from './../../utils/types';
@@ -20,6 +22,7 @@ export class CreateUserDto {
   @MaxLength(20)
   username: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(6)
   @MaxLength(100)
@@ -45,8 +48,10 @@ export class CreateUserDto {
   @IsEnum(Role)
   role: Role;
 
-  @IsBoolean()
-  status: boolean;
+  @IsInt()
+  @Min(0)
+  @Max(1)
+  status: number;
 
   @IsOptional()
   @IsString()

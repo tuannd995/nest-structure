@@ -1,3 +1,4 @@
+import { FilterDto } from './dto/filter.dto';
 import {
   Body,
   Controller,
@@ -7,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Response, Role } from 'src/utils/types';
@@ -14,18 +16,25 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Auth(Role.Admin)
   @Get()
-  async findAll(): Promise<Response> {
-    const data = await this.userService.findAll();
+  async getUsers(@Query() filterDto: FilterDto): Promise<Response> {
+    filterDto.page = Number(filterDto.page);
+    filterDto.limit = Number(filterDto.limit);
+
+    const result = await this.userService.getUsers({
+      ...filterDto,
+      limit: filterDto.limit > 10 ? 10 : filterDto.limit,
+    });
     return {
       message: 'Get user lists successfully',
       error: false,
-      data: data,
+      data: result.userList,
+      paginationObj: result.paginationObj,
     };
   }
 

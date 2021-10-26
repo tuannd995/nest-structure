@@ -1,3 +1,4 @@
+import { PaginationDto } from './../user/dto/pagination.dto';
 export enum Role {
   Admin = 'admin',
   PM = 'pm',
@@ -8,4 +9,5 @@ export type Response = {
   message: string;
   error: boolean;
   data: any;
+  paginationObj?: PaginationDto;
 };

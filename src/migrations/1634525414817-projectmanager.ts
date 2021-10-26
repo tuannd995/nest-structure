@@ -21,6 +21,10 @@ export class projectmanager1634525414817 implements MigrationInterface {
     await queryRunner.query(
       'CREATE TABLE IF NOT EXISTS `projectmanager`.`reports` (`id` bigint(8) NOT NULL,`project_id` bigint(8) NOT NULL,`user_id` bigint(8) NOT NULL,`title` varchar(255) NOT NULL,`date` date NOT NULL,`note` text NULL,`link` varchar(255) NULL,`created_at` datetime NOT NULL DEFAULT NOW(),`updated_at` datetime NOT NULL DEFAULT NOW(),PRIMARY KEY (`id`, `project_id`, `user_id`),UNIQUE INDEX `id_UNIQUE` (`id` ASC) ,UNIQUE INDEX `title_UNIQUE` (`title` ASC) ,INDEX `fk_report_table_project_table1_idx` (`project_id` ASC) ,INDEX `fk_report_table_user_table1_idx` (`user_id` ASC) ,CONSTRAINT `fk_report_table_project_table1`FOREIGN KEY (`project_id`)REFERENCES `projectmanager`.`projects` (`id`)ON DELETE NO ACTION ON UPDATE NO ACTION,CONSTRAINT `fk_report_table_user_table1`FOREIGN KEY (`user_id`)REFERENCES `projectmanager`.`users` (`id`)ON DELETE NO ACTION ON UPDATE NO ACTION)ENGINE = InnoDB;',
     );
+    await queryRunner.query(
+      'ALTER TABLE `projectmanager`.`users` MODIFY avatar varchar(255) ',
+    );
+
     await queryRunner.manager.save(User, {
       username: 'admin',
       email: 'duyhiep@gmail.com',
@@ -28,7 +32,7 @@ export class projectmanager1634525414817 implements MigrationInterface {
       firstName: 'Duy',
       lastName: 'Hiep',
       role: 'admin',
-      status: true,
+      status: 1,
     });
   }
 

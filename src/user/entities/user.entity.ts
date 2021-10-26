@@ -48,8 +48,8 @@ export class User {
   dateOfBirth: Date;
   @Column({ name: 'role', type: 'enum', nullable: false, enum: Role })
   role: string;
-  @Column({ name: 'status', type: 'boolean', default: true, nullable: false })
-  status: boolean;
+  @Column({ name: 'status', type: 'tinyint', default: 1, nullable: false })
+  status: number;
   @CreateDateColumn({ name: 'created_at', type: 'datetime' })
   createdAt: Date;
   @Column({ name: 'updated_at', type: 'datetime' })
