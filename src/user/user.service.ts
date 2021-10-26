@@ -5,14 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { hash } from 'bcryptjs';
+import { Brackets, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { convertAvatarToPath, removeImageInServer } from './functions';
-import { hash } from 'bcryptjs';
 
 interface UserFindData {
   id?: number;
@@ -76,29 +76,39 @@ export class UserService {
   // find all user
   async getUsers(filter: FilterDto) {
     const { page, limit, keyword, dob, role, status } = filter;
-    const _limit = limit ? limit : 10;
-    const startIndex = (page - 1) * _limit;
-
-    const total = await this.userRepository.count();
-    const lastPage = Math.ceil(total / _limit);
-    const _keyword = `"%${keyword ? keyword : ''}%"`;
-    const roleQuery = `user.role like "${role ? `${role}` : `%%`}"`;
-    const dobQuery = `user.dateOfBirth like "${dob ? `${dob}` : `%%`}"`;
-    const statusQuery = `user.status like "${status ? `${status}` : `%%`}"`;
-    const keywordQuery = `(user.firstName like ${_keyword} or user.firstName like ${_keyword} or user.username like ${_keyword} or user.email like ${_keyword})`;
-    const query = `${keywordQuery} and ${roleQuery} and ${dobQuery} and ${statusQuery}`;
+    const startIndex = (page - 1) * limit;
 
     const userList = await this.userRepository
       .createQueryBuilder('user')
-      .where(query)
+      .where('user.role like :role')
+      .andWhere('user.dateOfBirth like :dob')
+      .andWhere('user.status like :status')
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('user.firstName like :firstName')
+            .orWhere('user.lastName like :lastName')
+            .orWhere('user.username like :username')
+            .orWhere('user.email like :email');
+        }),
+      )
       .skip(startIndex)
-      .take(_limit)
+      .take(limit)
+      .setParameters({
+        role: `%${role ? role : ''}%`,
+        firstName: `%${keyword ? keyword : ''}%`,
+        lastName: `%${keyword ? keyword : ''}%`,
+        username: `%${keyword ? keyword : ''}%`,
+        email: `%${keyword ? keyword : ''}%`,
+        status: `%${status ? status : ''}%`,
+        dob: `%${dob ? dob : ''}%`,
+      })
       .getMany();
-    const paginationObj: PaginationDto = {
+
+    const pagination: PaginationDto = {
       page: page,
-      total: total,
-      limit: _limit,
-      lastPage: lastPage,
+      total: userList.length,
+      limit: limit,
+      lastPage: Math.ceil(userList.length / limit),
     };
     if (!userList) {
       throw new NotFoundException();
@@ -106,7 +116,7 @@ export class UserService {
 
     return {
       userList,
-      paginationObj,
+      pagination,
     };
   }
   // update user

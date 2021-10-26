@@ -9,5 +9,5 @@ export type Response = {
   message: string;
   error: boolean;
   data: any;
-  paginationObj?: PaginationDto;
+  pagination?: PaginationDto;
 };

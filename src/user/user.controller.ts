@@ -1,4 +1,3 @@
-import { FilterDto } from './dto/filter.dto';
 import {
   Body,
   Controller,
@@ -13,6 +12,7 @@ import {
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Response, Role } from 'src/utils/types';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
@@ -23,18 +23,18 @@ export class UserController {
   @Auth(Role.Admin)
   @Get()
   async getUsers(@Query() filterDto: FilterDto): Promise<Response> {
-    filterDto.page = Number(filterDto.page);
-    filterDto.limit = Number(filterDto.limit);
+    filterDto.page = Number(filterDto.page || 1);
+    filterDto.limit = Number(filterDto.limit || 10);
 
     const result = await this.userService.getUsers({
       ...filterDto,
-      limit: filterDto.limit > 10 ? 10 : filterDto.limit,
+      limit: filterDto.limit,
     });
     return {
       message: 'Get user lists successfully',
       error: false,
       data: result.userList,
-      paginationObj: result.paginationObj,
+      pagination: result.pagination,
     };
   }
 
