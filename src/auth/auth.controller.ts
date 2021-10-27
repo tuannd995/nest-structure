@@ -24,6 +24,7 @@ export class AuthController {
   @Get('profile')
   async getUser(@User() user: UserEntity) {
     return {
+      message: 'Get profile successfully',
       user,
     };
   }

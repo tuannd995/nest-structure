@@ -47,7 +47,7 @@ export class UserController {
     return {
       message: 'Get user successfully',
       error: false,
-      data: data,
+      data,
     };
   }
 
@@ -61,7 +61,7 @@ export class UserController {
     return {
       message: 'User created',
       error: false,
-      data: data,
+      data,
     };
   }
 
@@ -76,7 +76,7 @@ export class UserController {
     return {
       message: `Updated user with id ${id}`,
       error: false,
-      data: data,
+      data,
     };
   }
 
@@ -87,7 +87,7 @@ export class UserController {
     return {
       message: `Deleted user with id ${id}`,
       error: false,
-      data: data,
+      data,
     };
   }
 
@@ -98,7 +98,7 @@ export class UserController {
     return {
       message: 'Import users successfully',
       error: false,
-      data: data,
+      data,
     };
   }
 }
