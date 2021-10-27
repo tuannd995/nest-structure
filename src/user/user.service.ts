@@ -78,44 +78,41 @@ export class UserService {
     const { page, limit, keyword, dob, role, status } = filter;
     const startIndex = (page - 1) * limit;
 
-    const userList = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.role like :role')
-      .andWhere('user.dateOfBirth like :dob')
-      .andWhere('user.status like :status')
-      .andWhere(
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    if (role) {
+      queryBuilder.andWhere(`user.role like :role`, { role });
+    }
+    if (dob) {
+      queryBuilder.andWhere(`user.dateOfBirth like :dob`, { dob });
+    }
+    if (status) {
+      queryBuilder.andWhere(`user.status like :status`, { status });
+    }
+    if (keyword) {
+      queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where('user.firstName like :firstName')
-            .orWhere('user.lastName like :lastName')
-            .orWhere('user.username like :username')
-            .orWhere('user.email like :email');
+          qb.where(`user.firstName like :keyword`, { keyword })
+            .orWhere(`user.lastName like :keyword`, { keyword })
+            .orWhere(`user.username like :keyword`, { keyword })
+            .orWhere(`user.email like :keyword`, { keyword });
         }),
-      )
-      .skip(startIndex)
-      .take(limit)
-      .setParameters({
-        role: `%${role ? role : ''}%`,
-        firstName: `%${keyword ? keyword : ''}%`,
-        lastName: `%${keyword ? keyword : ''}%`,
-        username: `%${keyword ? keyword : ''}%`,
-        email: `%${keyword ? keyword : ''}%`,
-        status: `%${status ? status : ''}%`,
-        dob: `%${dob ? dob : ''}%`,
-      })
-      .getMany();
+      );
+    }
+    const total = await queryBuilder.getCount();
+    const users = await queryBuilder.skip(startIndex).take(limit).getMany();
 
     const pagination: PaginationDto = {
       page: page,
-      total: userList.length,
+      total,
       limit: limit,
-      lastPage: Math.ceil(userList.length / limit),
+      lastPage: Math.ceil(total / limit),
     };
-    if (!userList) {
+    if (!users) {
       throw new NotFoundException();
     }
 
     return {
-      userList,
+      users,
       pagination,
     };
   }

@@ -14,6 +14,7 @@ import { Response, Role } from 'src/utils/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -22,7 +23,7 @@ export class UserController {
 
   @Auth(Role.Admin)
   @Get()
-  async getUsers(@Query() filterDto: FilterDto): Promise<Response> {
+  async getUsers(@Query() filterDto: FilterDto): Promise<Response<User[]>> {
     filterDto.page = Number(filterDto.page || 1);
     filterDto.limit = Number(filterDto.limit || 10);
 
@@ -33,13 +34,15 @@ export class UserController {
     return {
       message: 'Get user lists successfully',
       error: false,
-      data: result.userList,
+      data: result.users,
       pagination: result.pagination,
     };
   }
 
   @Get(':id')
-  async getUser(@Param('id', ParseIntPipe) id: number): Promise<Response> {
+  async getUser(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Response<User>> {
     const data = await this.userService.getOneUser(id);
     return {
       message: 'Get user successfully',
@@ -50,7 +53,9 @@ export class UserController {
 
   @Auth(Role.Admin)
   @Post()
-  async createOneUser(@Body() createUserDto: CreateUserDto): Promise<Response> {
+  async createOneUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<Response<User>> {
     const data = await this.userService.createOneUser(createUserDto);
 
     return {
@@ -65,7 +70,7 @@ export class UserController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<Response> {
+  ): Promise<Response<User>> {
     const data = await this.userService.update(id, updateUserDto);
 
     return {
@@ -77,7 +82,7 @@ export class UserController {
 
   @Auth(Role.Admin)
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<Response> {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Response<User>> {
     const data = await this.userService.remove(id);
     return {
       message: `Deleted user with id ${id}`,
@@ -88,7 +93,7 @@ export class UserController {
 
   @Auth(Role.Admin)
   @Post('/import')
-  async importUsers(@Body() users: CreateUserDto[]): Promise<Response> {
+  async importUsers(@Body() users: CreateUserDto[]): Promise<Response<User[]>> {
     const data = await this.userService.importUsers(users);
     return {
       message: 'Import users successfully',

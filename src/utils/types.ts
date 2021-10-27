@@ -5,9 +5,9 @@ export enum Role {
   Member = 'member',
 }
 
-export type Response = {
+export type Response<T = any> = {
   message: string;
   error: boolean;
-  data: any;
+  data: T;
   pagination?: PaginationDto;
 };
