@@ -1,20 +1,28 @@
-import { Role } from './../../utils/types';
 import {
   IsDate,
   IsEmail,
+  IsEnum,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
-  IsEnum,
 } from 'class-validator';
+import { Role } from './../../utils/types';
 export class CreateUserDto {
+  @IsOptional()
+  @IsNumber()
+  id: number;
+
   @IsString()
   @MinLength(3)
   @MaxLength(20)
   username: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(6)
   @MaxLength(100)
@@ -41,10 +49,13 @@ export class CreateUserDto {
   role: Role;
 
   @IsInt()
+  @Min(0)
+  @Max(1)
   status: number;
 
   @IsOptional()
-  avatar: string | any;
+  @IsString()
+  avatar: string;
   @IsDate()
   updatedAt: Date;
 }

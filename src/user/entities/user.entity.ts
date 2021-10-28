@@ -38,8 +38,8 @@ export class User {
     select: false,
   })
   password: string;
-  @Column({ name: 'avatar', type: 'longblob', nullable: true })
-  avatar: any;
+  @Column({ name: 'avatar', type: 'varchar', length: 255, nullable: true })
+  avatar: string;
   @Column({ name: 'first_name', type: 'varchar', length: 50, nullable: false })
   firstName: string;
   @Column({ name: 'last_name', type: 'varchar', length: 50, nullable: false })
