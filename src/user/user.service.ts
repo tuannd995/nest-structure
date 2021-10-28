@@ -12,7 +12,11 @@ import { FilterDto } from './dto/filter.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { convertAvatarToPath, removeImageInServer } from './functions';
+import {
+  convertAvatarToPath,
+  removeImageInServer,
+  createUploadFolder,
+} from './functions';
 
 interface UserFindData {
   id?: number;
@@ -52,6 +56,7 @@ export class UserService {
   }
   // creat one User
   async createOneUser(createUserDto: CreateUserDto) {
+    createUploadFolder();
     const userExist = await this.userRepository.findOne({
       where: [
         { email: createUserDto.email },
@@ -62,6 +67,7 @@ export class UserService {
     if (userExist) {
       throw new BadRequestException('Email or username  already exists');
     }
+
     if (createUserDto.avatar) {
       createUserDto.avatar = convertAvatarToPath(createUserDto.avatar);
     }
@@ -119,6 +125,7 @@ export class UserService {
   // update user
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne({ id });
+    createUploadFolder();
     if (updateUserDto.avatar && updateUserDto.avatar !== user.avatar) {
       if (user.avatar) removeImageInServer(user.avatar);
       updateUserDto.avatar = convertAvatarToPath(updateUserDto.avatar);
