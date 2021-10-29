@@ -1,13 +1,15 @@
 import { hash } from 'bcryptjs';
+import { UserProject } from 'src/common/entities/user_project.entity';
+import { Role } from 'src/utils/types';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Role } from 'src/utils/types';
 
 @Entity('users')
 export class User {
@@ -63,4 +65,6 @@ export class User {
     }
     this.password = await hash(this.password, 10);
   }
+  @OneToMany(() => UserProject, (up) => up.user)
+  public projects!: UserProject[];
 }

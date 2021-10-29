@@ -6,16 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
+import { UserProject } from 'src/common/entities/user_project.entity';
 import { Brackets, Repository } from 'typeorm';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
-import { PaginationDto } from './dto/pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import {
   convertAvatarToPath,
-  removeImageInServer,
   createUploadFolder,
+  removeImageInServer,
 } from './functions';
 
 interface UserFindData {
@@ -97,15 +98,21 @@ export class UserService {
     if (keyword) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where(`user.firstName like :keyword`, { keyword })
-            .orWhere(`user.lastName like :keyword`, { keyword })
-            .orWhere(`user.username like :keyword`, { keyword })
-            .orWhere(`user.email like :keyword`, { keyword });
+          qb.where(`user.firstName like :keyword`, { keyword: `%${keyword}%` })
+            .orWhere(`user.lastName like :keyword`, { keyword: `%${keyword}%` })
+            .orWhere(`user.username like :keyword`, {
+              keyword: `%${keyword}%`,
+            })
+            .orWhere(`user.email like :keyword`, { keyword: `%${keyword}%` });
         }),
       );
     }
     const total = await queryBuilder.getCount();
-    const users = await queryBuilder.skip(startIndex).take(limit).getMany();
+    const users = await queryBuilder
+      .leftJoinAndSelect('user.projects', 'users__projects.project_id')
+      .skip(startIndex)
+      .take(limit)
+      .getMany();
 
     const pagination: PaginationDto = {
       page: page,
@@ -165,5 +172,17 @@ export class UserService {
       return this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
+  }
+
+  //find many
+  async getListUsersInProject(list: User[]) {
+    const data: number[] = [];
+    list.forEach((item) => data.push(Number(item['userId'])));
+
+    const listUsers = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id IN (:data)', { data })
+      .getMany();
+    return listUsers;
   }
 }

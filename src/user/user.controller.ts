@@ -16,7 +16,7 @@ import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-
+import { UserProject } from 'src/common/entities/user_project.entity';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -97,6 +97,20 @@ export class UserController {
     const data = await this.userService.importUsers(users);
     return {
       message: 'Import users successfully',
+      error: false,
+      data,
+    };
+  }
+
+  @Post('/in-project')
+  async getUserInProject(
+    @Body() listUserInProjects: User[],
+  ): Promise<Response<User[]>> {
+    const data = await this.userService.getListUsersInProject(
+      listUserInProjects,
+    );
+    return {
+      message: 'Get list user in project successfully',
       error: false,
       data,
     };

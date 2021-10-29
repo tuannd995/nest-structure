@@ -1,4 +1,4 @@
-import { PaginationDto } from './../user/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 export enum Role {
   Admin = 'admin',
   PM = 'pm',
