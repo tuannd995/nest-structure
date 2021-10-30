@@ -10,13 +10,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { Project } from 'src/project/entities/project.entity';
 import { Response, Role } from 'src/utils/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-import { UserProject } from 'src/common/entities/user_project.entity';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -27,10 +27,7 @@ export class UserController {
     filterDto.page = Number(filterDto.page || 1);
     filterDto.limit = Number(filterDto.limit || 10);
 
-    const result = await this.userService.getUsers({
-      ...filterDto,
-      limit: filterDto.limit,
-    });
+    const result = await this.userService.getUsers(filterDto);
     return {
       message: 'Get user lists successfully',
       error: false,
@@ -102,17 +99,19 @@ export class UserController {
     };
   }
 
-  @Post('/in-project')
-  async getUserInProject(
-    @Body() listUserInProjects: User[],
-  ): Promise<Response<User[]>> {
-    const data = await this.userService.getListUsersInProject(
-      listUserInProjects,
-    );
+  @Get('/:id/projects')
+  async getUserWithProjects(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() filterDto: FilterDto,
+  ): Promise<Response<Project[]>> {
+    filterDto.page = Number(filterDto.page || 1);
+    filterDto.limit = Number(filterDto.limit || 10);
+    const data = await this.userService.getUserWithProject(id, filterDto);
     return {
-      message: 'Get list user in project successfully',
+      message: 'Get user with projects successfully',
       error: false,
-      data,
+      data: data.projectsWithUser,
+      pagination: data.pagination,
     };
   }
 }

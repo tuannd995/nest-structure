@@ -1,12 +1,12 @@
-import { UserProject } from 'src/common/entities/user_project.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -18,7 +18,7 @@ export class Project {
   name: string;
   @Column({ name: 'client', type: 'varchar', nullable: false })
   client: string;
-  @Column({ name: 'description', type: 'text', nullable: false })
+  @Column({ name: 'description', type: 'text', nullable: true })
   description: string;
   @Column({ name: 'start_date', type: 'date' })
   startDate: Date;
@@ -38,6 +38,11 @@ export class Project {
   @JoinColumn({ name: 'pm_id' })
   pm: User;
 
-  @OneToMany(() => UserProject, (up) => up.project)
+  @ManyToMany(() => User, (user) => user.id)
+  @JoinTable({
+    name: 'users__projects',
+    joinColumn: { name: 'project_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
   members: User[];
 }

@@ -1,5 +1,5 @@
 import { hash } from 'bcryptjs';
-import { UserProject } from 'src/common/entities/user_project.entity';
+import { Project } from 'src/project/entities/project.entity';
 import { Role } from 'src/utils/types';
 import {
   BeforeInsert,
@@ -7,7 +7,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -65,6 +66,12 @@ export class User {
     }
     this.password = await hash(this.password, 10);
   }
-  @OneToMany(() => UserProject, (up) => up.user)
-  public projects!: UserProject[];
+
+  @ManyToMany(() => Project, (project) => project.members)
+  @JoinTable({
+    name: 'users__projects',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'project_id', referencedColumnName: 'id' },
+  })
+  projects: Project[];
 }

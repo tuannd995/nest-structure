@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Response } from 'src/utils/types';
+import { Auth } from 'src/common/decorators/auth.decorator';
+import { Response, Role } from 'src/utils/types';
 import { FilterDto } from './dto/filter.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
@@ -8,6 +9,7 @@ import { ProjectService } from './project.service';
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
+  @Auth(Role.Admin)
   @Get()
   async getProjects(
     @Query() filterDto: FilterDto,

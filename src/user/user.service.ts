@@ -1,12 +1,15 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
-import { UserProject } from 'src/common/entities/user_project.entity';
+import { ProjectService } from 'src/project/project.service';
+import { SALT_ROUNDS } from 'src/utils/constants';
 import { Brackets, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,7 +32,10 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => ProjectService))
+    private readonly projectService: ProjectService,
   ) {}
+
   // find one user
   async findOne(data: UserFindData) {
     const user = await this.userRepository
@@ -58,6 +64,7 @@ export class UserService {
   // creat one User
   async createOneUser(createUserDto: CreateUserDto) {
     createUploadFolder();
+
     const userExist = await this.userRepository.findOne({
       where: [
         { email: createUserDto.email },
@@ -72,7 +79,7 @@ export class UserService {
     if (createUserDto.avatar) {
       createUserDto.avatar = convertAvatarToPath(createUserDto.avatar);
     }
-    createUserDto.password = await hash('111111', 10);
+    createUserDto.password = await hash('111111', SALT_ROUNDS);
 
     const newUser = this.userRepository.create(createUserDto);
     const user = await this.userRepository.save(newUser);
@@ -108,11 +115,7 @@ export class UserService {
       );
     }
     const total = await queryBuilder.getCount();
-    const users = await queryBuilder
-      .leftJoinAndSelect('user.projects', 'users__projects.project_id')
-      .skip(startIndex)
-      .take(limit)
-      .getMany();
+    const users = await queryBuilder.skip(startIndex).take(limit).getMany();
 
     const pagination: PaginationDto = {
       page: page,
@@ -167,22 +170,28 @@ export class UserService {
       if (_users.length === 0) {
         throw new NotAcceptableException('All users already exist');
       }
-      const pass = await hash('111111', 10);
+      const pass = await hash('111111', SALT_ROUNDS);
       _users.forEach(async (user) => (user.password = pass));
       return this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
   }
 
-  //find many
-  async getListUsersInProject(list: User[]) {
-    const data: number[] = [];
-    list.forEach((item) => data.push(Number(item['userId'])));
+  //get user with project
+  async getUserWithProject(id: number, filter: FilterDto) {
+    const { projects, pagination } = await this.projectService.getProjects(
+      filter,
+    );
 
-    const listUsers = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.id IN (:data)', { data })
-      .getMany();
-    return listUsers;
+    const projectsWithUser = projects.filter((project) =>
+      project.members.some((member) => Number(member.id) === id),
+    );
+    pagination.total = projectsWithUser.length;
+    pagination.lastPage = Math.ceil(pagination.total / pagination.limit);
+
+    if (!projects) {
+      throw new NotFoundException('User does not have any projects');
+    }
+    return { projectsWithUser, pagination };
   }
 }

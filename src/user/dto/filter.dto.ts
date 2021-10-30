@@ -6,4 +6,5 @@ export class FilterDto {
   status?: number;
   page?: number;
   limit?: number;
+  endDate?: string;
 }
