@@ -78,6 +78,17 @@ export class UserController {
   }
 
   @Auth(Role.Admin)
+  @Delete('/deleteMany')
+  async removeUsers(@Body() ids: number[]): Promise<Response<User[]>> {
+    const data = await this.userService.removeUsers(ids);
+    return {
+      message: 'Remove users successfully',
+      error: false,
+      data,
+    };
+  }
+
+  @Auth(Role.Admin)
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Response<User>> {
     const data = await this.userService.remove(id);

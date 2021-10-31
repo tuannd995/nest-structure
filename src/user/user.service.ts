@@ -159,7 +159,20 @@ export class UserService {
     }
     return await this.userRepository.remove(user);
   }
+  // delete many user with list id
+  async removeUsers(ids: number[]) {
+    const users = await this.userRepository.findByIds(ids);
 
+    if (!users) {
+      throw new NotFoundException('Users does not exits');
+    }
+    for (const user of users) {
+      if (user.avatar) {
+        removeImageInServer(user.avatar);
+      }
+    }
+    return await this.userRepository.remove(users);
+  }
   // import
   async importUsers(users: CreateUserDto[]) {
     if (users instanceof Array) {
