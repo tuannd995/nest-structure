@@ -148,6 +148,7 @@ export class UserService {
     delete _user.password;
     return _user;
   }
+
   // delete user
   async remove(id: number) {
     const user = await this.findOne({ id });
@@ -159,13 +160,19 @@ export class UserService {
     }
     return await this.userRepository.remove(user);
   }
-  // delete many user with list id
-  async removeUsers(ids: number[]) {
-    const users = await this.userRepository.findByIds(ids);
 
+  async findUsersWithIds(ids: number[]) {
+    const users = await this.userRepository.findByIds(ids);
     if (!users) {
       throw new NotFoundException('Users does not exits');
     }
+    return users;
+  }
+
+  // delete many user with list id
+  async removeUsers(ids: number[]) {
+    const users = await this.findUsersWithIds(ids);
+
     for (const user of users) {
       if (user.avatar) {
         removeImageInServer(user.avatar);

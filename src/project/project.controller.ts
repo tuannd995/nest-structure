@@ -1,6 +1,7 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { Response, Role } from 'src/utils/types';
+import { CreateProjectDto } from './dto/create-project.dto';
 import { FilterDto } from './dto/filter.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
@@ -22,6 +23,18 @@ export class ProjectController {
       error: false,
       data: result.projects,
       pagination: result.pagination,
+    };
+  }
+  @Auth(Role.Admin)
+  @Post()
+  async createProject(
+    @Body() project: CreateProjectDto,
+  ): Promise<Response<Project>> {
+    const data = await this.projectService.createProject(project);
+    return {
+      message: 'Create project successfully',
+      error: false,
+      data,
     };
   }
 }
