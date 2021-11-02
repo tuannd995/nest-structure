@@ -22,13 +22,19 @@ export class ProjectService {
     const { page, limit, keyword, status, endDate } = filter;
     const startIndex = (page - 1) * limit;
 
-    const query = this.projectRepository
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.members', 'members');
+    const query = this.projectRepository.createQueryBuilder('project');
+    if (user.role === Role.Member) {
+      query.innerJoinAndSelect(
+        'project.members',
+        'members',
+        'members.id = :userId',
+        { userId: user.id },
+      );
+    } else {
+      query.leftJoinAndSelect('project.members', 'members');
+    }
     if (user.role === Role.PM) {
-      query.where('project.pmId = :pmId', { pmId: user.id });
-    } else if (user.role === Role.Member) {
-      query.where('project.members = :memberId', { memberId: user.id });
+      query.where('project.pm = :userId', { userId: user.id });
     }
     if (status) {
       query.andWhere('project.status = :status', { status });
