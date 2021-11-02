@@ -196,22 +196,4 @@ export class UserService {
     }
     throw new BadRequestException('Request must be a list');
   }
-
-  //get user with project
-  async getUserWithProject(id: number, filter: FilterDto) {
-    const { projects, pagination } = await this.projectService.getProjects(
-      filter,
-    );
-
-    const projectsWithUser = projects.filter((project) =>
-      project.members.some((member) => Number(member.id) === id),
-    );
-    pagination.total = projectsWithUser.length;
-    pagination.lastPage = Math.ceil(pagination.total / pagination.limit);
-
-    if (!projects) {
-      throw new NotFoundException('User does not have any projects');
-    }
-    return { projectsWithUser, pagination };
-  }
 }
