@@ -1,19 +1,13 @@
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Response, Role } from 'src/utils/types';
 import { CreateProjectDto } from './dto/create-project.dto';
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { User } from 'src/common/decorators/user.decorator';
-import { Response } from 'src/utils/types';
 import { User as UserEntity } from '../user/entities/user.entity';
-
 import { FilterDto } from './dto/filter.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
-import { User as UserEntity } from 'src/user/entities/user.entity';
 
 @Controller('projects')
 export class ProjectController {
