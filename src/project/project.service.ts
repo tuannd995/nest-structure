@@ -86,6 +86,13 @@ export class ProjectService {
       memberIds,
       status,
     } = createProjectDto;
+    // check project is exits or not
+    const projectExits = await this.projectRepository.findOne({
+      where: { name },
+    });
+    if (projectExits) {
+      throw new NotFoundException('Project is exits');
+    }
 
     const project = new Project();
     project.name = name;
