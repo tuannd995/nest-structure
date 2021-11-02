@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { User } from 'src/user/entities/user.entity';
+import { Role } from 'src/utils/types';
 import { Brackets, Repository } from 'typeorm';
 import { FilterDto } from './dto/filter.dto';
 import { Project } from './entities/project.entity';
@@ -16,15 +17,19 @@ export class ProjectService {
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
   ) {}
-
-  async getProjects(filter: FilterDto) {
+  //get all project of user
+  async getProjects(user: User, filter: FilterDto) {
     const { page, limit, keyword, status, endDate } = filter;
     const startIndex = (page - 1) * limit;
 
-    //find project with many conditions
     const query = this.projectRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.members', 'members');
+    if (user.role === Role.PM) {
+      query.where('project.pmId = :pmId', { pmId: user.id });
+    } else if (user.role === Role.Member) {
+      query.where('project.members = :memberId', { memberId: user.id });
+    }
     if (status) {
       query.andWhere('project.status = :status', { status });
     }
@@ -48,8 +53,9 @@ export class ProjectService {
 
     const projects = await query.skip(startIndex).take(limit).getMany();
     const total = await query.getCount();
+
     if (!projects) {
-      throw new NotFoundException();
+      throw new NotFoundException('User does not have any projects');
     }
 
     const pagination: PaginationDto = {

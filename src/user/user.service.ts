@@ -148,6 +148,7 @@ export class UserService {
     delete _user.password;
     return _user;
   }
+
   // delete user
   async remove(id: number) {
     const user = await this.findOne({ id });
@@ -159,13 +160,19 @@ export class UserService {
     }
     return await this.userRepository.remove(user);
   }
-  // delete many user with list id
-  async removeUsers(ids: number[]) {
-    const users = await this.userRepository.findByIds(ids);
 
+  async findUsersWithIds(ids: number[]) {
+    const users = await this.userRepository.findByIds(ids);
     if (!users) {
       throw new NotFoundException('Users does not exits');
     }
+    return users;
+  }
+
+  // delete many user with list id
+  async removeUsers(ids: number[]) {
+    const users = await this.findUsersWithIds(ids);
+
     for (const user of users) {
       if (user.avatar) {
         removeImageInServer(user.avatar);
@@ -188,23 +195,5 @@ export class UserService {
       return this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
-  }
-
-  //get user with project
-  async getUserWithProject(id: number, filter: FilterDto) {
-    const { projects, pagination } = await this.projectService.getProjects(
-      filter,
-    );
-
-    const projectsWithUser = projects.filter((project) =>
-      project.members.some((member) => Number(member.id) === id),
-    );
-    pagination.total = projectsWithUser.length;
-    pagination.lastPage = Math.ceil(pagination.total / pagination.limit);
-
-    if (!projects) {
-      throw new NotFoundException('User does not have any projects');
-    }
-    return { projectsWithUser, pagination };
   }
 }
