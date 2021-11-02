@@ -8,7 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
 import { Role } from 'src/utils/types';
 import { Brackets, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
