@@ -10,7 +10,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
-import { Project } from 'src/project/entities/project.entity';
 import { Response, Role } from 'src/utils/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
@@ -107,22 +106,6 @@ export class UserController {
       message: 'Import users successfully',
       error: false,
       data,
-    };
-  }
-
-  @Get('/:id/projects')
-  async getUserWithProjects(
-    @Param('id', ParseIntPipe) id: number,
-    @Query() filterDto: FilterDto,
-  ): Promise<Response<Project[]>> {
-    filterDto.page = Number(filterDto.page || 1);
-    filterDto.limit = Number(filterDto.limit || 10);
-    const data = await this.userService.getUserWithProject(id, filterDto);
-    return {
-      message: 'Get user with projects successfully',
-      error: false,
-      data: data.projectsWithUser,
-      pagination: data.pagination,
     };
   }
 }

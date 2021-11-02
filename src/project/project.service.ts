@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -8,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { Role } from 'src/utils/types';
 import { Brackets, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { FilterDto } from './dto/filter.dto';
@@ -25,15 +27,25 @@ export class ProjectService {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
-
-  async getProjects(filter: FilterDto) {
+  //get all project of user
+  async getProjects(user: User, filter: FilterDto) {
     const { page, limit, keyword, status, endDate } = filter;
     const startIndex = (page - 1) * limit;
 
-    //find project with many conditions
-    const query = this.projectRepository
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.members', 'members');
+    const query = this.projectRepository.createQueryBuilder('project');
+    if (user.role === Role.Member) {
+      query.innerJoinAndSelect(
+        'project.members',
+        'members',
+        'members.id = :userId',
+        { userId: user.id },
+      );
+    } else {
+      query.leftJoinAndSelect('project.members', 'members');
+    }
+    if (user.role === Role.PM) {
+      query.where('project.pm = :userId', { userId: user.id });
+    }
     if (status) {
       query.andWhere('project.status = :status', { status });
     }
@@ -57,8 +69,9 @@ export class ProjectService {
 
     const projects = await query.skip(startIndex).take(limit).getMany();
     const total = await query.getCount();
+
     if (!projects) {
-      throw new NotFoundException();
+      throw new NotFoundException('User does not have any projects');
     }
 
     const pagination: PaginationDto = {
@@ -86,12 +99,14 @@ export class ProjectService {
       memberIds,
       status,
     } = createProjectDto;
-    // check project is exits or not
+
+    // check project is exits or not by name
     const projectExits = await this.projectRepository.findOne({
       where: { name },
     });
+
     if (projectExits) {
-      throw new NotFoundException('Project is exits');
+      throw new BadRequestException('Project is exits');
     }
 
     const project = new Project();
