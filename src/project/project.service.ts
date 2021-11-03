@@ -70,25 +70,32 @@ export class ProjectService {
     if (page && limit) {
       const startIndex = (page - 1) * limit;
       query.skip(startIndex).take(limit);
+      const projects = await query.getMany();
+      const total = await query.getCount();
+      const pagination: PaginationDto = {
+        page,
+        total,
+        limit,
+        lastPage: Math.ceil(total / limit),
+      };
+      if (!projects) {
+        throw new NotFoundException('User does not have any projects');
+      }
+      return {
+        projects: projects,
+        pagination,
+      };
+    } else {
+      const projects = await query.getMany();
+
+      if (!projects) {
+        throw new NotFoundException('User does not have any projects');
+      }
+
+      return {
+        projects: projects,
+      };
     }
-    const projects = await query.getMany();
-    const total = await query.getCount();
-
-    if (!projects) {
-      throw new NotFoundException('User does not have any projects');
-    }
-
-    const pagination: PaginationDto = {
-      page,
-      total,
-      limit,
-      lastPage: Math.ceil(total / limit),
-    };
-
-    return {
-      projects: projects,
-      pagination,
-    };
   }
 
   // create project

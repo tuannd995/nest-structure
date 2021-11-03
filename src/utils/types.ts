@@ -18,3 +18,11 @@ export type Response<T = any> = {
   data: T;
   pagination?: PaginationDto;
 };
+
+export enum TaskStatus {
+  Unscheduled = 1,
+  Doing = 2,
+  Reviewing = 3,
+  Completed = 4,
+  Cancelled = 5,
+}

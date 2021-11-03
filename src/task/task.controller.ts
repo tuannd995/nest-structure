@@ -9,7 +9,7 @@ import { TaskService } from './task.service';
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  @Auth(Role.Member, Role.PM)
+  @Auth(Role.PM)
   @Post()
   async create(@Body() createTaskDto: CreateTaskDto): Promise<Response<Task>> {
     const data = await this.taskService.create(createTaskDto);

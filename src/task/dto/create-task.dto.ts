@@ -34,7 +34,6 @@ export class CreateTaskDto {
   @Max(2)
   priority: number;
 
-  @IsOptional()
   @IsInt()
   sequence: number;
 

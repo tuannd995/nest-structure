@@ -13,11 +13,11 @@ export class Task {
   title: string;
   @Column({ name: 'notes', type: 'text', nullable: true })
   notes: string;
-  @Column({ name: 'priority', type: 'tinyint', default: 2 })
+  @Column({ name: 'priority', type: 'tinyint', default: 2, nullable: false })
   priority: number;
-  @Column({ name: 'sequence', type: 'int', nullable: true })
+  @Column({ name: 'sequence', type: 'int', nullable: false })
   sequence: number;
-  @Column({ name: 'status', type: 'tinyint', default: 1 })
+  @Column({ name: 'status', type: 'tinyint', default: 1, nullable: false })
   status: number;
   @Column({ name: 'due_date', type: 'date' })
   dueDate: Date;

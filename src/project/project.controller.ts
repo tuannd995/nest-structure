@@ -28,8 +28,10 @@ export class ProjectController {
     @Query() filterDto: FilterDto,
     @User() user: UserEntity,
   ): Promise<Response<Project[]>> {
-    filterDto.page = Number(filterDto.page || 1);
-    filterDto.limit = Number(filterDto.limit || 10);
+    if (filterDto && Object.keys(filterDto).length > 0) {
+      filterDto.page = Number(filterDto.page || 1);
+      filterDto.limit = Number(filterDto.limit || 10);
+    }
 
     const result = await this.projectService.getProjects(user, filterDto);
     return {
