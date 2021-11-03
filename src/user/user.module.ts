@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProjectModule } from 'src/project/project.module';
 import { JwtStrategy } from './../auth/strategies/jwt.strategy';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -15,6 +16,7 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
     ConfigModule,
     MulterModule,
+    ProjectModule,
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],

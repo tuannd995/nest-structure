@@ -16,7 +16,6 @@ import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -27,10 +26,7 @@ export class UserController {
     filterDto.page = Number(filterDto.page || 1);
     filterDto.limit = Number(filterDto.limit || 10);
 
-    const result = await this.userService.getUsers({
-      ...filterDto,
-      limit: filterDto.limit,
-    });
+    const result = await this.userService.getUsers(filterDto);
     return {
       message: 'Get user lists successfully',
       error: false,
@@ -75,6 +71,17 @@ export class UserController {
 
     return {
       message: `Updated user with id ${id}`,
+      error: false,
+      data,
+    };
+  }
+
+  @Auth(Role.Admin)
+  @Delete('/deleteMany')
+  async removeUsers(@Body() ids: number[]): Promise<Response<User[]>> {
+    const data = await this.userService.removeUsers(ids);
+    return {
+      message: 'Remove users successfully',
       error: false,
       data,
     };

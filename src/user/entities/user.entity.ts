@@ -1,13 +1,16 @@
 import { hash } from 'bcryptjs';
+import { Project } from 'src/project/entities/project.entity';
+import { Role } from 'src/utils/types';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Role } from 'src/utils/types';
 
 @Entity('users')
 export class User {
@@ -63,4 +66,12 @@ export class User {
     }
     this.password = await hash(this.password, 10);
   }
+
+  @ManyToMany(() => Project, (project) => project.members)
+  @JoinTable({
+    name: 'users__projects',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'project_id', referencedColumnName: 'id' },
+  })
+  projects: Project[];
 }

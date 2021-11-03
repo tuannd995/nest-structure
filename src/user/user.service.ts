@@ -1,21 +1,25 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
+import { ProjectService } from 'src/project/project.service';
+import { SALT_ROUNDS } from 'src/utils/constants';
 import { Brackets, Repository } from 'typeorm';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
-import { PaginationDto } from './dto/pagination.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import {
   convertAvatarToPath,
-  removeImageInServer,
   createUploadFolder,
+  removeImageInServer,
 } from './functions';
 
 interface UserFindData {
@@ -28,7 +32,10 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => ProjectService))
+    private readonly projectService: ProjectService,
   ) {}
+
   // find one user
   async findOne(data: UserFindData) {
     const user = await this.userRepository
@@ -57,6 +64,7 @@ export class UserService {
   // creat one User
   async createOneUser(createUserDto: CreateUserDto) {
     createUploadFolder();
+
     const userExist = await this.userRepository.findOne({
       where: [
         { email: createUserDto.email },
@@ -71,7 +79,7 @@ export class UserService {
     if (createUserDto.avatar) {
       createUserDto.avatar = convertAvatarToPath(createUserDto.avatar);
     }
-    createUserDto.password = await hash('111111', 10);
+    createUserDto.password = await hash('111111', SALT_ROUNDS);
 
     const newUser = this.userRepository.create(createUserDto);
     const user = await this.userRepository.save(newUser);
@@ -97,10 +105,12 @@ export class UserService {
     if (keyword) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where(`user.firstName like :keyword`, { keyword })
-            .orWhere(`user.lastName like :keyword`, { keyword })
-            .orWhere(`user.username like :keyword`, { keyword })
-            .orWhere(`user.email like :keyword`, { keyword });
+          qb.where(`user.firstName like :keyword`, { keyword: `%${keyword}%` })
+            .orWhere(`user.lastName like :keyword`, { keyword: `%${keyword}%` })
+            .orWhere(`user.username like :keyword`, {
+              keyword: `%${keyword}%`,
+            })
+            .orWhere(`user.email like :keyword`, { keyword: `%${keyword}%` });
         }),
       );
     }
@@ -138,6 +148,7 @@ export class UserService {
     delete _user.password;
     return _user;
   }
+
   // delete user
   async remove(id: number) {
     const user = await this.findOne({ id });
@@ -150,6 +161,25 @@ export class UserService {
     return await this.userRepository.remove(user);
   }
 
+  async findUsersWithIds(ids: number[]) {
+    const users = await this.userRepository.findByIds(ids);
+    if (!users) {
+      throw new NotFoundException('Users does not exits');
+    }
+    return users;
+  }
+
+  // delete many user with list id
+  async removeUsers(ids: number[]) {
+    const users = await this.findUsersWithIds(ids);
+
+    for (const user of users) {
+      if (user.avatar) {
+        removeImageInServer(user.avatar);
+      }
+    }
+    return await this.userRepository.remove(users);
+  }
   // import
   async importUsers(users: CreateUserDto[]) {
     if (users instanceof Array) {
@@ -160,7 +190,7 @@ export class UserService {
       if (_users.length === 0) {
         throw new NotAcceptableException('All users already exist');
       }
-      const pass = await hash('111111', 10);
+      const pass = await hash('111111', SALT_ROUNDS);
       _users.forEach(async (user) => (user.password = pass));
       return this.userRepository.save(_users);
     }

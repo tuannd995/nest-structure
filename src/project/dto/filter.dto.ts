@@ -1,10 +1,7 @@
 export class FilterDto {
   keyword?: string;
-  name?: string;
-  dob?: string;
-  role?: string;
+  endDate?: string;
   status?: number;
   page?: number;
   limit?: number;
-  endDate?: string;
 }
