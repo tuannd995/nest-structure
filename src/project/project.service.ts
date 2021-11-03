@@ -1,9 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { Role } from 'src/utils/types';
 import { Brackets, Repository } from 'typeorm';
+import { CreateProjectDto } from './dto/create-project.dto';
 import { FilterDto } from './dto/filter.dto';
 import { Project } from './entities/project.entity';
 
@@ -16,6 +24,8 @@ export class ProjectService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
   //get all project of user
   async getProjects(user: User, filter: FilterDto) {
@@ -75,5 +85,44 @@ export class ProjectService {
       projects: projects,
       pagination,
     };
+  }
+
+  // create project
+  async createProject(createProjectDto: CreateProjectDto) {
+    const {
+      name,
+      description,
+      pmId,
+      client,
+      startDate,
+      endDate,
+      memberIds,
+      status,
+    } = createProjectDto;
+
+    // check project is exits or not by name
+    const projectExits = await this.projectRepository.findOne({
+      where: { name },
+    });
+
+    if (projectExits) {
+      throw new BadRequestException('Project is exits');
+    }
+
+    const project = new Project();
+    project.name = name;
+    project.description = description;
+    project.client = client;
+    project.startDate = startDate;
+    project.endDate = endDate;
+    project.pmId = pmId;
+    project.status = status;
+    if (memberIds) {
+      const users = await this.userService.findUsersWithIds(memberIds);
+      project.members = users;
+    }
+
+    await this.projectRepository.save(project);
+    return project;
   }
 }

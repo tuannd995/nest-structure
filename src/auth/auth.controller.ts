@@ -21,7 +21,7 @@ export class AuthController {
     };
   }
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
+  @Get('/profile')
   async getUser(@User() user: UserEntity) {
     return {
       message: 'Get profile successfully',
