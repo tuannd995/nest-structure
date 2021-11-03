@@ -1,5 +1,14 @@
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { Response, Role } from 'src/utils/types';
@@ -38,6 +47,17 @@ export class ProjectController {
     const data = await this.projectService.createProject(project);
     return {
       message: 'Create project successfully',
+      error: false,
+      data,
+    };
+  }
+  @Get('/:id')
+  async getProject(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Response<Project>> {
+    const data = await this.projectService.getProjectById(id);
+    return {
+      message: 'Get project successfully',
       error: false,
       data,
     };

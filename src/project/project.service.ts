@@ -27,10 +27,10 @@ export class ProjectService {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
+
   //get all project of user
   async getProjects(user: User, filter: FilterDto) {
     const { page, limit, keyword, status, endDate } = filter;
-    const startIndex = (page - 1) * limit;
 
     const query = this.projectRepository.createQueryBuilder('project');
     if (user.role === Role.Member) {
@@ -67,7 +67,11 @@ export class ProjectService {
       );
     }
 
-    const projects = await query.skip(startIndex).take(limit).getMany();
+    if (page && limit) {
+      const startIndex = (page - 1) * limit;
+      query.skip(startIndex).take(limit);
+    }
+    const projects = await query.getMany();
     const total = await query.getCount();
 
     if (!projects) {
@@ -123,6 +127,19 @@ export class ProjectService {
     }
 
     await this.projectRepository.save(project);
+    return project;
+  }
+
+  // get project by id
+  async getProjectById(id: number) {
+    const project = await this.projectRepository.findOne({
+      where: { id },
+      relations: ['pm', 'members'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project does not exist');
+    }
     return project;
   }
 }

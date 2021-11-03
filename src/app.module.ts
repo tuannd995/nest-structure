@@ -1,3 +1,4 @@
+import { TaskModule } from './task/task.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -6,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProjectModule } from './project/project.module';
 import { UserModule } from './user/user.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,6 +17,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     AuthModule,
     ProjectModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
