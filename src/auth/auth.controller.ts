@@ -13,7 +13,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Body() loginDto: LoginDto, @User() user: UserEntity) {
-    console.log({ user });
     const accessToken = await this.authService.login(user);
     return {
       message: 'Login successfully',
