@@ -26,3 +26,7 @@ export enum TaskStatus {
   Completed = 4,
   Cancelled = 5,
 }
+export enum TaskPriority {
+  High = 1,
+  Medium = 2,
+}

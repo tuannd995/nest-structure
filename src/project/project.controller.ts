@@ -17,6 +17,8 @@ import { User as UserEntity } from '../user/entities/user.entity';
 import { FilterDto } from './dto/filter.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
+import { TaskFilterDto } from 'src/task/dto/filter.dto';
+import { Task } from 'src/task/entities/task.entity';
 
 @Controller('projects')
 export class ProjectController {
@@ -35,7 +37,7 @@ export class ProjectController {
 
     const result = await this.projectService.getProjects(user, filterDto);
     return {
-      message: 'Get list projects successfully',
+      message: 'Get project list successfully',
       error: false,
       data: result.projects,
       pagination: result.pagination,
@@ -60,6 +62,23 @@ export class ProjectController {
     const data = await this.projectService.getProjectById(id);
     return {
       message: 'Get project successfully',
+      error: false,
+      data,
+    };
+  }
+
+  @Get('/:id/tasks')
+  async getProjectTasks(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() filterDto: TaskFilterDto,
+  ): Promise<Response<Task[]>> {
+    // statues [1,2] :string to array number
+    filterDto.statuses = Array.from(filterDto.statuses, (x) =>
+      Number(x),
+    ).filter((x) => !isNaN(x));
+    const data = await this.projectService.getProjectTasks(filterDto, id);
+    return {
+      message: 'Get project tasks successfully',
       error: false,
       data,
     };

@@ -123,7 +123,7 @@ export class UserService {
       limit: limit,
       lastPage: Math.ceil(total / limit),
     };
-    if (!users) {
+    if (!users || !users.length) {
       throw new NotFoundException();
     }
 

@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { TaskFilterDto } from 'src/task/dto/filter.dto';
+import { TaskService } from 'src/task/task.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Role } from 'src/utils/types';
@@ -26,6 +28,8 @@ export class ProjectService {
     private readonly projectRepository: Repository<Project>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => TaskService))
+    private readonly taskService: TaskService,
   ) {}
 
   //get all project of user
@@ -82,18 +86,18 @@ export class ProjectService {
         throw new NotFoundException('User does not have any projects');
       }
       return {
-        projects: projects,
+        projects,
         pagination,
       };
     } else {
       const projects = await query.getMany();
 
-      if (!projects) {
+      if (!projects || !projects.length) {
         throw new NotFoundException('User does not have any projects');
       }
 
       return {
-        projects: projects,
+        projects,
       };
     }
   }
@@ -148,5 +152,10 @@ export class ProjectService {
       throw new NotFoundException('Project does not exist');
     }
     return project;
+  }
+
+  // get tasks of project by id project
+  async getProjectTasks(filterDto: TaskFilterDto, id: number) {
+    return await this.taskService.getTasksInProject(filterDto, id);
   }
 }

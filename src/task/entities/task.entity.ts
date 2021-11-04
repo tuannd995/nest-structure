@@ -1,9 +1,13 @@
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Project } from 'src/project/entities/project.entity';
 
 @Entity('tasks')
 export class Task {
@@ -31,4 +35,16 @@ export class Task {
   requestById: number;
   @Column({ name: 'project_id', type: 'bigint' })
   projectId: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'assign_to_id', referencedColumnName: 'id' })
+  assignTo: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'request_by_id', referencedColumnName: 'id' })
+  requestByUser: User;
+
+  @ManyToOne(() => Project, (project) => project.tasks)
+  @JoinColumn({ name: 'project_id', referencedColumnName: 'id' })
+  project: Project;
 }
