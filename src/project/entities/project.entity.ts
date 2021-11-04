@@ -1,3 +1,4 @@
+import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -7,6 +8,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -45,4 +47,8 @@ export class Project {
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   members: User[];
+
+  // one to many relation with task entity (one project can have many tasks) (inverse side)
+  @OneToMany(() => Task, (task) => task.project)
+  tasks: Task[];
 }
