@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
-import { ProjectService } from 'src/project/project.service';
+import { TaskService } from 'src/task/task.service';
 import { SALT_ROUNDS } from 'src/utils/constants';
 import { Brackets, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -32,8 +32,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @Inject(forwardRef(() => ProjectService))
-    private readonly projectService: ProjectService,
+    @Inject(forwardRef(() => TaskService))
+    private readonly taskService: TaskService,
   ) {}
 
   // find one user
@@ -195,5 +195,13 @@ export class UserService {
       return this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
+  }
+  // get all task of user
+  async getTasks(id: number) {
+    const tasks = await this.taskService.getTasksByUserId(id);
+    if (!tasks || !tasks.length) {
+      throw new NotFoundException('User does not have any tasks');
+    }
+    return tasks;
   }
 }

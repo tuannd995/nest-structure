@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { Task } from 'src/task/entities/task.entity';
 import { Response, Role } from 'src/utils/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
@@ -104,6 +105,19 @@ export class UserController {
     const data = await this.userService.importUsers(users);
     return {
       message: 'Import users successfully',
+      error: false,
+      data,
+    };
+  }
+
+  // get task of user
+  @Get('/:id/tasks')
+  async getUserTasks(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Response<Task[]>> {
+    const data = await this.userService.getTasks(id);
+    return {
+      message: 'Get user tasks successfully',
       error: false,
       data,
     };
