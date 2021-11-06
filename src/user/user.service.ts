@@ -12,6 +12,7 @@ import { ProjectService } from 'src/project/project.service';
 import { SALT_ROUNDS } from 'src/utils/constants';
 import { Brackets, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { ChangePasswordDto } from './dto/change-pass.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -195,5 +196,23 @@ export class UserService {
       return this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
+  }
+
+  // change password user
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    const { password, confirmPass } = changePasswordDto;
+    const user = await this.findOne({ id });
+    if (!user) {
+      throw new NotFoundException('User does not exits');
+    }
+    if (password !== confirmPass) {
+      throw new BadRequestException(
+        'New password and confirm password not match',
+      );
+    }
+
+    const _user = this.userRepository.merge(user, { password });
+
+    return await this.userRepository.save(_user);
   }
 }
