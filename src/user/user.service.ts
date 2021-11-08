@@ -7,13 +7,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { compare, hash } from 'bcryptjs';
-import { ProjectService } from 'src/project/project.service';
-import { hash } from 'bcryptjs';
-import { TaskService } from 'src/task/task.service';
-import { SALT_ROUNDS } from 'src/utils/constants';
+import { compare } from 'bcryptjs';
 import { MailService } from 'src/mail/mail.service';
 import { ProjectService } from 'src/project/project.service';
+import { TaskService } from 'src/task/task.service';
 import { Brackets, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { ChangePasswordDto } from './dto/change-pass.dto';
@@ -213,7 +210,6 @@ export class UserService {
     throw new BadRequestException('Request must be a list');
   }
 
-
   // change password user
   async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
     const { password, confirmPass, currentPass } = changePasswordDto;
@@ -235,7 +231,7 @@ export class UserService {
     const _user = this.userRepository.merge(user, { password });
 
     return await this.userRepository.save(_user);
-
+  }
   // get all task of user
   async getUserTasks(userId: number) {
     const tasks = await this.taskService.getTasksByUserId(userId);

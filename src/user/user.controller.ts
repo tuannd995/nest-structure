@@ -119,7 +119,6 @@ export class UserController {
     };
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Auth(Role.Admin, Role.Member, Role.PM)
   @Put('/:id/change-password')
@@ -130,7 +129,10 @@ export class UserController {
     const data = await this.userService.changePassword(id, changePassDto);
     return {
       message: 'Change password successfully',
-
+      error: false,
+      data,
+    };
+  }
   // get task of user
   @Get('/:id/tasks')
   async getUserTasks(
