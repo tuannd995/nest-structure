@@ -47,4 +47,5 @@ export class Task {
   @ManyToOne(() => Project, (project) => project.tasks)
   @JoinColumn({ name: 'project_id', referencedColumnName: 'id' })
   project: Project;
+  user: User;
 }

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { Task } from 'src/task/entities/task.entity';
 import { Response, Role } from 'src/utils/types';
 import { ChangePasswordDto } from './dto/change-pass.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -118,6 +119,7 @@ export class UserController {
     };
   }
 
+
   @UseGuards(JwtAuthGuard)
   @Auth(Role.Admin, Role.Member, Role.PM)
   @Put('/:id/change-password')
@@ -128,6 +130,16 @@ export class UserController {
     const data = await this.userService.changePassword(id, changePassDto);
     return {
       message: 'Change password successfully',
+
+  // get task of user
+  @Get('/:id/tasks')
+  async getUserTasks(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Response<Task[]>> {
+    const data = await this.userService.getUserTasks(id);
+    return {
+      message: 'Get user tasks successfully',
+
       error: false,
       data,
     };

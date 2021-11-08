@@ -27,6 +27,7 @@
     "code:fix": "prettier --write \"**/*.ts\""
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.0",
@@ -37,11 +38,13 @@
     "@nestjs/serve-static": "^2.2.2",
     "@nestjs/typeorm": "^8.0.2",
     "@types/bcryptjs": "^2.4.2",
+    "@types/nodemailer": "^6.4.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "class-validator": "^0.13.1",
     "dotenv": "^10.0.0",
     "mysql": "^2.18.1",
+    "nodemailer": "^6.7.0",
     "passport": "^0.5.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
