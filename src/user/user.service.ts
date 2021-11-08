@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { hash } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { ProjectService } from 'src/project/project.service';
 import { SALT_ROUNDS } from 'src/utils/constants';
 import { Brackets, Repository } from 'typeorm';
@@ -200,10 +200,15 @@ export class UserService {
 
   // change password user
   async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
-    const { password, confirmPass } = changePasswordDto;
+    const { password, confirmPass, currentPass } = changePasswordDto;
     const user = await this.findOne({ id });
     if (!user) {
       throw new NotFoundException('User does not exits');
+    }
+
+    const isMatch = await compare(currentPass, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Current password is not correct');
     }
     if (password !== confirmPass) {
       throw new BadRequestException(

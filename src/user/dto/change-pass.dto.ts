@@ -7,4 +7,7 @@ export class ChangePasswordDto {
   @IsString()
   @MinLength(6)
   confirmPass: string;
+  @IsString()
+  @MinLength(6)
+  currentPass: string;
 }
