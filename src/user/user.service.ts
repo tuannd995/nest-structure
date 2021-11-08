@@ -7,13 +7,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { hash } from 'bcryptjs';
-import { TaskService } from 'src/task/task.service';
-import { SALT_ROUNDS } from 'src/utils/constants';
+import { compare } from 'bcryptjs';
 import { MailService } from 'src/mail/mail.service';
 import { ProjectService } from 'src/project/project.service';
+import { TaskService } from 'src/task/task.service';
 import { Brackets, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { ChangePasswordDto } from './dto/change-pass.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -208,6 +208,29 @@ export class UserService {
       return await this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
+  }
+
+  // change password user
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    const { password, confirmPass, currentPass } = changePasswordDto;
+    const user = await this.findOne({ id });
+    if (!user) {
+      throw new NotFoundException('User does not exits');
+    }
+
+    const isMatch = await compare(currentPass, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Current password is not correct');
+    }
+    if (password !== confirmPass) {
+      throw new BadRequestException(
+        'New password and confirm password not match',
+      );
+    }
+
+    const _user = this.userRepository.merge(user, { password });
+
+    return await this.userRepository.save(_user);
   }
   // get all task of user
   async getUserTasks(userId: number) {
