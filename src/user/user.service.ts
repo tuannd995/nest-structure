@@ -7,6 +7,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hash } from 'bcryptjs';
+import { TaskService } from 'src/task/task.service';
+import { SALT_ROUNDS } from 'src/utils/constants';
 import { MailService } from 'src/mail/mail.service';
 import { ProjectService } from 'src/project/project.service';
 import { Brackets, Repository } from 'typeorm';
@@ -32,6 +35,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => TaskService))
+    private readonly taskService: TaskService,
     @Inject(forwardRef(() => ProjectService))
     private readonly projectService: ProjectService,
     @Inject(forwardRef(() => MailService))
@@ -203,5 +208,13 @@ export class UserService {
       return await this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
+  }
+  // get all task of user
+  async getUserTasks(userId: number) {
+    const tasks = await this.taskService.getTasksByUserId(userId);
+    if (!tasks || !tasks.length) {
+      throw new NotFoundException('User does not have any tasks');
+    }
+    return tasks;
   }
 }

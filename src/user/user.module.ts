@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from 'src/mail/mail.module';
 import { ProjectModule } from 'src/project/project.module';
+import { TaskModule } from 'src/task/task.module';
 import { JwtStrategy } from './../auth/strategies/jwt.strategy';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
@@ -18,6 +19,7 @@ import { UserService } from './user.service';
     ConfigModule,
     MulterModule,
     ProjectModule,
+    TaskModule,
     MailModule,
   ],
   controllers: [UserController],
