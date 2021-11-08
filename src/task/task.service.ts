@@ -217,14 +217,9 @@ export class TaskService {
   // get all task of user with id user id
   async getTasksByUserId(userId: number) {
     const tasks = await this.taskRepository.find({
-      where: [
-        {
-          assignToId: userId,
-        },
-        {
-          requestById: userId,
-        },
-      ],
+      where: {
+        assignToId: userId,
+      },
     });
 
     if (!tasks || !tasks.length) {

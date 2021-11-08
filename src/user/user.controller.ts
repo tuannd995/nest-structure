@@ -115,7 +115,7 @@ export class UserController {
   async getUserTasks(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Response<Task[]>> {
-    const data = await this.userService.getTasks(id);
+    const data = await this.userService.getUserTasks(id);
     return {
       message: 'Get user tasks successfully',
       error: false,

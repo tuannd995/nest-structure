@@ -197,8 +197,8 @@ export class UserService {
     throw new BadRequestException('Request must be a list');
   }
   // get all task of user
-  async getTasks(id: number) {
-    const tasks = await this.taskService.getTasksByUserId(id);
+  async getUserTasks(userId: number) {
+    const tasks = await this.taskService.getTasksByUserId(userId);
     if (!tasks || !tasks.length) {
       throw new NotFoundException('User does not have any tasks');
     }
