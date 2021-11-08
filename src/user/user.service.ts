@@ -10,6 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { hash } from 'bcryptjs';
 import { TaskService } from 'src/task/task.service';
 import { SALT_ROUNDS } from 'src/utils/constants';
+import { MailService } from 'src/mail/mail.service';
+import { ProjectService } from 'src/project/project.service';
 import { Brackets, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +21,7 @@ import { User } from './entities/user.entity';
 import {
   convertAvatarToPath,
   createUploadFolder,
+  generatePassword,
   removeImageInServer,
 } from './functions';
 
@@ -34,6 +37,10 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @Inject(forwardRef(() => TaskService))
     private readonly taskService: TaskService,
+    @Inject(forwardRef(() => ProjectService))
+    private readonly projectService: ProjectService,
+    @Inject(forwardRef(() => MailService))
+    private readonly mailService: MailService,
   ) {}
 
   // find one user
@@ -79,10 +86,11 @@ export class UserService {
     if (createUserDto.avatar) {
       createUserDto.avatar = convertAvatarToPath(createUserDto.avatar);
     }
-    createUserDto.password = await hash('111111', SALT_ROUNDS);
+    createUserDto.password = generatePassword();
 
     const newUser = this.userRepository.create(createUserDto);
     const user = await this.userRepository.save(newUser);
+    await this.mailService.sendMail(createUserDto as User);
     delete user.password;
     return user;
   }
@@ -190,9 +198,14 @@ export class UserService {
       if (_users.length === 0) {
         throw new NotAcceptableException('All users already exist');
       }
-      const pass = await hash('111111', SALT_ROUNDS);
-      _users.forEach(async (user) => (user.password = pass));
-      return this.userRepository.save(_users);
+
+      // send mail
+      _users.forEach(async (user) => {
+        user.password = generatePassword();
+        await this.mailService.sendMail(user as User);
+      });
+
+      return await this.userRepository.save(_users);
     }
     throw new BadRequestException('Request must be a list');
   }
