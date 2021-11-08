@@ -5,6 +5,7 @@ import * as env from 'dotenv';
 import * as express from 'express';
 import { AppModule } from './app.module';
 import { DatabaseMiddleware } from './middlewares/DatabaseMiddleware';
+
 env.config({ path: '.env' });
 
 async function bootstrap() {
@@ -13,6 +14,7 @@ async function bootstrap() {
   const port = parseInt(config.get<string>('PORT'), 10) || 5000;
 
   app.use('/uploads', express.static('uploads'));
+
   app.enableCors();
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
