@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
 import { TaskFilterDto } from 'src/task/dto/filter.dto';
 import { Task } from 'src/task/entities/task.entity';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Controller('projects')
 export class ProjectController {
@@ -79,6 +81,20 @@ export class ProjectController {
     const data = await this.projectService.getProjectTasks(filterDto, id);
     return {
       message: 'Get project tasks successfully',
+      error: false,
+      data,
+    };
+  }
+  // edit project
+  @Auth(Role.Admin, Role.PM)
+  @Put(':id')
+  async editProject(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateProjectDto,
+  ): Promise<Response<Project>> {
+    const data = await this.projectService.editProject(id, updateDto);
+    return {
+      message: 'Edit project successfully',
       error: false,
       data,
     };
