@@ -48,7 +48,7 @@ export class TaskController {
   }
 
   // update task
-  @Auth(Role.PM, Role.Member)
+  @Auth(Role.PM, Role.Member, Role.Admin)
   @Put('/:id')
   async updateTask(
     @Param('id', ParseIntPipe) id: number,
@@ -56,7 +56,7 @@ export class TaskController {
   ): Promise<Response<Task>> {
     const data = await this.taskService.updateTask(id, updateTaskDto);
     return {
-      message: 'Task updated successfully',
+      message: `Task updated successfully`,
       error: false,
       data,
     };
