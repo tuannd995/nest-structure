@@ -15,6 +15,7 @@ import { Role } from 'src/utils/types';
 import { Brackets, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { FilterDto } from './dto/filter.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 import { Project } from './entities/project.entity';
 
 export type ProjectResponse = Project & {
@@ -157,5 +158,21 @@ export class ProjectService {
   // get tasks of project by id project
   async getProjectTasks(filterDto: TaskFilterDto, id: number) {
     return await this.taskService.getTasksInProject(filterDto, id);
+  }
+  // edit project
+  async editProject(id: number, updateProjectDto: UpdateProjectDto) {
+    const project = await this.getProjectById(id);
+
+    if (updateProjectDto.name !== project.name) {
+      const projectExits = await this.projectRepository.findOne({
+        where: { name: updateProjectDto.name },
+      });
+      if (projectExits) {
+        throw new BadRequestException('Project name is exits');
+      }
+    }
+    const _project = this.projectRepository.merge(project, updateProjectDto);
+    await this.projectRepository.save(_project);
+    return project;
   }
 }
