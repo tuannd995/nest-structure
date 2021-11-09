@@ -62,7 +62,7 @@ export class TaskController {
     };
   }
   //update task status
-  @Auth(Role.PM, Role.Member)
+  @Auth(Role.PM, Role.Member, Role.Admin)
   @Put('/:id/status')
   async updateTaskStatusAndSequence(
     @Param('id', ParseIntPipe) id: number,
