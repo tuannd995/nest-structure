@@ -1,7 +1,5 @@
-import { User } from '../user/entities/user.entity';
+import { createMockUsers } from 'src/mockData/createMockData';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { hash } from 'bcryptjs';
-import { SALT_ROUNDS } from 'src/utils/constants';
 
 export class projectmanager1634525414817 implements MigrationInterface {
   name = 'projectmanager1634525414817';
@@ -26,19 +24,7 @@ export class projectmanager1634525414817 implements MigrationInterface {
       'ALTER TABLE `projectmanager`.`users` MODIFY avatar varchar(255) ',
     );
 
-    // await queryRunner.query(
-    //   'ALTER TABLE `projectmanager`.`users__projects` DROP PRIMARY KEY',
-    // );
-
-    await queryRunner.manager.save(User, {
-      username: 'admin',
-      email: 'duyhiep@gmail.com',
-      password: await hash('111111', SALT_ROUNDS),
-      firstName: 'Duy',
-      lastName: 'Hiep',
-      role: 'admin',
-      status: 1,
-    });
+    await createMockUsers(queryRunner);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

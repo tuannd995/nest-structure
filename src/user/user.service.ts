@@ -240,4 +240,13 @@ export class UserService {
     }
     return tasks;
   }
+
+  //get all users
+  async getAllUsers() {
+    const users = await this.userRepository.find();
+    if (!users || !users.length) {
+      throw new NotFoundException('Users does not exits');
+    }
+    return users;
+  }
 }
