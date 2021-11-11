@@ -29,8 +29,8 @@ export class UserController {
   async getUsers(
     @Query() filterDto: FilterDto,
   ): Promise<Response<UserEntity[]>> {
-    filterDto.page = Number(filterDto.page || 1);
-    filterDto.limit = Number(filterDto.limit || 10);
+    filterDto.page = Number(filterDto.page);
+    filterDto.limit = Number(filterDto.limit);
 
     const result = await this.userService.getUsers(filterDto);
     return {

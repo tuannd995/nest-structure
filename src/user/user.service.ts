@@ -97,48 +97,59 @@ export class UserService {
 
   // find all user
   async getUsers(filter: FilterDto) {
-    const { page, limit, keyword, dob, role, status } = filter;
-    const startIndex = (page - 1) * limit;
+    if (filter.page && filter.limit) {
+      const { page, limit, keyword, dob, role, status } = filter;
+      const startIndex = (page - 1) * limit;
 
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-    if (role) {
-      queryBuilder.andWhere(`user.role like :role`, { role });
-    }
-    if (dob) {
-      queryBuilder.andWhere(`user.dateOfBirth like :dob`, { dob });
-    }
-    if (status) {
-      queryBuilder.andWhere(`user.status like :status`, { status });
-    }
-    if (keyword) {
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.where(`user.firstName like :keyword`, { keyword: `%${keyword}%` })
-            .orWhere(`user.lastName like :keyword`, { keyword: `%${keyword}%` })
-            .orWhere(`user.username like :keyword`, {
+      const queryBuilder = this.userRepository.createQueryBuilder('user');
+      if (role) {
+        queryBuilder.andWhere(`user.role like :role`, { role });
+      }
+      if (dob) {
+        queryBuilder.andWhere(`user.dateOfBirth like :dob`, { dob });
+      }
+      if (status) {
+        queryBuilder.andWhere(`user.status like :status`, { status });
+      }
+      if (keyword) {
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            qb.where(`user.firstName like :keyword`, {
               keyword: `%${keyword}%`,
             })
-            .orWhere(`user.email like :keyword`, { keyword: `%${keyword}%` });
-        }),
-      );
-    }
-    const total = await queryBuilder.getCount();
-    const users = await queryBuilder.skip(startIndex).take(limit).getMany();
+              .orWhere(`user.lastName like :keyword`, {
+                keyword: `%${keyword}%`,
+              })
+              .orWhere(`user.username like :keyword`, {
+                keyword: `%${keyword}%`,
+              })
+              .orWhere(`user.email like :keyword`, { keyword: `%${keyword}%` });
+          }),
+        );
+      }
+      const total = await queryBuilder.getCount();
+      const users = await queryBuilder.skip(startIndex).take(limit).getMany();
 
-    const pagination: PaginationDto = {
-      page: page,
-      total,
-      limit: limit,
-      lastPage: Math.ceil(total / limit),
-    };
-    if (!users || !users.length) {
-      throw new NotFoundException();
-    }
+      const pagination: PaginationDto = {
+        page: page,
+        total,
+        limit: limit,
+        lastPage: Math.ceil(total / limit),
+      };
+      if (!users || !users.length) {
+        throw new NotFoundException();
+      }
 
-    return {
-      users,
-      pagination,
-    };
+      return {
+        users,
+        pagination,
+      };
+    } else {
+      const users = await this.userRepository.find();
+      return {
+        users,
+      };
+    }
   }
   // update user
   async update(id: number, updateUserDto: UpdateUserDto) {
