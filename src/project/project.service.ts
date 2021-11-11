@@ -174,8 +174,18 @@ export class ProjectService {
       }
     }
     const _project = this.projectRepository.merge(project, updateProjectDto);
-    await this.projectRepository.save(_project);
-    return project;
+
+    return await this.projectRepository.save(_project);
+  }
+
+  // get projects of user by id when user is PM or Member of project
+  async getProjectsByUserId(userId: number) {
+    return await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.members', 'members')
+      .where('pm_id = :userId', { userId })
+      .orWhere('members.id = :userId', { userId })
+      .getMany();
   }
   // create multiple project by excel file
   async createProjects(createProjectDto: CreateProjectDto[]) {

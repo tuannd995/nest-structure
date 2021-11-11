@@ -216,16 +216,10 @@ export class TaskService {
   }
   // get all task of user with id user id
   async getTasksByUserId(userId: number) {
-    const tasks = await this.taskRepository.find({
+    return await this.taskRepository.find({
       where: {
         assignToId: userId,
       },
     });
-
-    if (!tasks || !tasks.length) {
-      throw new NotFoundException('No tasks found');
-    }
-
-    return tasks;
   }
 }
