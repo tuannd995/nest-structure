@@ -238,19 +238,11 @@ export class UserService {
   }
   // get all task of user
   async getUserTasks(userId: number) {
-    const tasks = await this.taskService.getTasksByUserId(userId);
-    if (!tasks || !tasks.length) {
-      throw new NotFoundException('User does not have any tasks');
-    }
-    return tasks;
+    return await this.taskService.getTasksByUserId(userId);
   }
 
   // get all projects of user
   async getUserProjects(userId: number) {
-    const projects = await this.projectService.getProjectsByUserId(userId);
-    if (!projects || !projects.length) {
-      throw new NotFoundException('User does not have any projects');
-    }
-    return projects;
+    return await this.projectService.getProjectsByUserId(userId);
   }
 }
