@@ -99,4 +99,13 @@ export class ProjectController {
       data,
     };
   }
+
+  // import project
+  @Auth(Role.Admin)
+  @Post('/imports')
+  async importProjects(
+    @Body() project: CreateProjectDto[],
+  ): Promise<Response<Project[]>> {
+    return await this.projectService.createProjects(project);
+  }
 }

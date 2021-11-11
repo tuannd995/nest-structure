@@ -12,7 +12,7 @@ import { TaskService } from 'src/task/task.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Role } from 'src/utils/types';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { FilterDto } from './dto/filter.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -38,6 +38,7 @@ export class ProjectService {
     const { page, limit, keyword, status, endDate } = filter;
 
     const query = this.projectRepository.createQueryBuilder('project');
+
     if (user.role === Role.Member) {
       query.innerJoinAndSelect(
         'project.members',
@@ -48,8 +49,9 @@ export class ProjectService {
     } else {
       query.leftJoinAndSelect('project.members', 'members');
     }
+
     if (user.role === Role.PM) {
-      query.where('project.pm = :userId', { userId: user.id });
+      query.where('project.pmId = :userId', { userId: user.id });
     }
     if (status) {
       query.andWhere('project.status = :status', { status });
@@ -174,5 +176,24 @@ export class ProjectService {
     const _project = this.projectRepository.merge(project, updateProjectDto);
     await this.projectRepository.save(_project);
     return project;
+  }
+  // create multiple project by excel file
+  async createProjects(createProjectDto: CreateProjectDto[]) {
+    const projectExits = await this.projectRepository.find({
+      where: { name: In(createProjectDto.map((project) => project.name)) },
+    });
+    if (projectExits.length) {
+      return {
+        message: 'Projects is exits',
+        data: projectExits,
+        error: true,
+      };
+    }
+    const projects = await this.projectRepository.save(createProjectDto);
+    return {
+      message: 'Import successfully',
+      data: projects,
+      error: false,
+    };
   }
 }

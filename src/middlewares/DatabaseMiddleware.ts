@@ -20,6 +20,7 @@ export class DatabaseMiddleware implements NestMiddleware {
 
     try {
       const connection: Connection = connectionManager.get();
+
       if (!connection.isConnected) await connection.connect();
     } catch (error) {
       await createConnection(TypeOrmConfig);
