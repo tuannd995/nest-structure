@@ -1,9 +1,11 @@
+import { hashSync } from 'bcryptjs';
 import { company, date, internet, lorem, name } from 'faker';
 import { UsersProjects } from 'src/common/Entities/Users__Projects.entity';
 import { CreateProjectDto } from 'src/project/dto/create-project.dto';
 import { Project } from 'src/project/entities/project.entity';
 import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
+import { SALT_ROUNDS } from 'src/utils/constants';
 import { ProjectStatus, Role, TaskPriority, TaskStatus } from 'src/utils/types';
 import { QueryRunner } from 'typeorm';
 
@@ -17,7 +19,20 @@ const randomNumber = (min: number, max: number) => {
 
 export const createMockUsers = async (query: QueryRunner) => {
   const userIds: number[] = [];
-  for (let i = 0; i < numOfUsers; i++) {
+  userIds.push(
+    (
+      await query.manager.save(User, {
+        username: 'admin',
+        password: hashSync('111111', SALT_ROUNDS),
+        email: 'duyhiep2519@gamil.com',
+        firstName: 'Duy',
+        lastName: 'Hiep',
+        role: Role.Admin,
+        status: 1,
+      })
+    ).id,
+  );
+  for (let i = 1; i < numOfUsers; i++) {
     const user = new User();
     user.firstName = name.firstName();
     user.lastName = name.lastName();
@@ -25,9 +40,7 @@ export const createMockUsers = async (query: QueryRunner) => {
     user.email = internet.email(user.lastName + i);
     user.password = '111111';
     user.status = 1;
-    if (i === 0) {
-      user.role = Role.Admin;
-    } else if (i <= 21) {
+    if (i <= 21) {
       user.role = Role.PM;
     } else {
       user.role = Role.Member;
