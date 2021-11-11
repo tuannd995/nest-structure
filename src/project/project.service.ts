@@ -186,9 +186,6 @@ export class ProjectService {
       .orWhere('members.id = :userId', { userId })
       .getMany();
 
-    if (!projects.length) {
-      throw new NotFoundException('No projects found');
-    }
     return projects;
   }
 }

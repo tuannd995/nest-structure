@@ -222,10 +222,6 @@ export class TaskService {
       },
     });
 
-    if (!tasks || !tasks.length) {
-      throw new NotFoundException('No tasks found');
-    }
-
     return tasks;
   }
 }
