@@ -48,6 +48,7 @@ export class ProjectService {
     } else {
       query.leftJoinAndSelect('project.members', 'members');
     }
+
     if (user.role === Role.PM) {
       query.where('project.pm = :userId', { userId: user.id });
     }
@@ -174,5 +175,20 @@ export class ProjectService {
     const _project = this.projectRepository.merge(project, updateProjectDto);
     await this.projectRepository.save(_project);
     return project;
+  }
+
+  // get projects of user by id when user is PM or Member of project
+  async getProjectsByUserId(userId: number) {
+    const projects = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.members', 'members')
+      .where('pm_id = :userId', { userId })
+      .orWhere('members.id = :userId', { userId })
+      .getMany();
+
+    if (!projects.length) {
+      throw new NotFoundException('No projects found');
+    }
+    return projects;
   }
 }

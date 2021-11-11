@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { Project } from 'src/project/entities/project.entity';
 import { Task } from 'src/task/entities/task.entity';
 import { Response, Role } from 'src/utils/types';
 import { ChangePasswordDto } from './dto/change-pass.dto';
@@ -142,6 +143,18 @@ export class UserController {
     return {
       message: 'Get user tasks successfully',
 
+      error: false,
+      data,
+    };
+  }
+  // get projects of user
+  @Get('/:id/projects')
+  async getUserProjects(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Response<Project[]>> {
+    const data = await this.userService.getUserProjects(id);
+    return {
+      message: 'Get user projects successfully',
       error: false,
       data,
     };

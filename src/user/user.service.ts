@@ -240,4 +240,13 @@ export class UserService {
     }
     return tasks;
   }
+
+  // get all projects of user
+  async getUserProjects(userId: number) {
+    const projects = await this.projectService.getProjectsByUserId(userId);
+    if (!projects || !projects.length) {
+      throw new NotFoundException('User does not have any projects');
+    }
+    return projects;
+  }
 }
