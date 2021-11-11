@@ -1,11 +1,10 @@
-import { hash } from 'bcryptjs';
-import { company, internet, lorem, name } from 'faker';
+import { company, date, internet, lorem, name } from 'faker';
 import { UsersProjects } from 'src/common/Entities/Users__Projects.entity';
 import { CreateProjectDto } from 'src/project/dto/create-project.dto';
 import { Project } from 'src/project/entities/project.entity';
+import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
-import { SALT_ROUNDS } from 'src/utils/constants';
-import { ProjectStatus, Role } from 'src/utils/types';
+import { ProjectStatus, Role, TaskPriority, TaskStatus } from 'src/utils/types';
 import { QueryRunner } from 'typeorm';
 
 const numOfUsers = 100;
@@ -52,6 +51,7 @@ const createMockProjects = async (query: QueryRunner, userIds: number[]) => {
     project.pmId = userIds[randomNumber(1, 21)];
     project.memberIds = [memberId, memberId + 1, memberId + 2];
     await query.manager.save(Project, project);
+    await createMockTasks(query, project);
     await createMockUsersProjects(query, project);
   }
 };
@@ -65,5 +65,34 @@ const createMockUsersProjects = async (
       project_id: project.id,
       user_id: project.memberIds[i],
     });
+  }
+};
+
+const createMockTasks = async (
+  query: QueryRunner,
+  project: CreateProjectDto,
+) => {
+  const taskStatues: TaskStatus[] = [
+    TaskStatus.Unscheduled,
+    TaskStatus.Reviewing,
+    TaskStatus.Doing,
+    TaskStatus.Completed,
+    TaskStatus.Cancelled,
+  ];
+  for (let i = 0; i < 10; i++) {
+    const task = new Task();
+    task.title =
+      lorem.words().length > 20
+        ? lorem.words().slice(0, 19) + i
+        : lorem.words() + i;
+    task.notes = lorem.sentence();
+    task.status = taskStatues[randomNumber(0, taskStatues.length - 1)];
+    task.projectId = project.id;
+    task.requestById = project.pmId;
+    task.assignToId =
+      project.memberIds[randomNumber(0, project.memberIds.length - 1)];
+    task.dueDate = date.future();
+    task.priority = TaskPriority.Medium;
+    await query.manager.save(Task, task);
   }
 };

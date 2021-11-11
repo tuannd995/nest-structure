@@ -146,14 +146,4 @@ export class UserController {
       data,
     };
   }
-  @Auth(Role.Admin)
-  @Post('/all')
-  async getAllUsers(): Promise<Response<UserEntity[]>> {
-    const data = await this.userService.getAllUsers();
-    return {
-      message: 'Get all users successfully',
-      error: false,
-      data,
-    };
-  }
 }
