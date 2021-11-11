@@ -98,7 +98,6 @@ export class UserService {
   // find all user
   async getUsers(filter: FilterDto) {
     const { page, limit, keyword, dob, role, status } = filter;
-    const startIndex = (page - 1) * limit;
 
     const queryBuilder = this.userRepository.createQueryBuilder('user');
     if (role) {
@@ -113,8 +112,12 @@ export class UserService {
     if (keyword) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where(`user.firstName like :keyword`, { keyword: `%${keyword}%` })
-            .orWhere(`user.lastName like :keyword`, { keyword: `%${keyword}%` })
+          qb.where(`user.firstName like :keyword`, {
+            keyword: `%${keyword}%`,
+          })
+            .orWhere(`user.lastName like :keyword`, {
+              keyword: `%${keyword}%`,
+            })
             .orWhere(`user.username like :keyword`, {
               keyword: `%${keyword}%`,
             })
@@ -122,23 +125,24 @@ export class UserService {
         }),
       );
     }
-    const total = await queryBuilder.getCount();
-    const users = await queryBuilder.skip(startIndex).take(limit).getMany();
-
-    const pagination: PaginationDto = {
-      page: page,
-      total,
-      limit: limit,
-      lastPage: Math.ceil(total / limit),
-    };
-    if (!users || !users.length) {
-      throw new NotFoundException();
+    if (limit) {
+      const currentPage = page || 1;
+      const startIndex = (currentPage - 1) * limit;
+      const total = await queryBuilder.getCount();
+      const users = await queryBuilder.skip(startIndex).take(limit).getMany();
+      const pagination: PaginationDto = {
+        page: currentPage,
+        total,
+        limit: limit,
+        lastPage: Math.ceil(total / limit),
+      };
+      return { users, pagination };
+    } else {
+      const users = await queryBuilder.getMany();
+      return {
+        users,
+      };
     }
-
-    return {
-      users,
-      pagination,
-    };
   }
   // update user
   async update(id: number, updateUserDto: UpdateUserDto) {
