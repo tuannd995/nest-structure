@@ -1,73 +1,102 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+<h1>Project Manager</h1>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 1. Getting started
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### 1.1 Requirements
 
-## Description
+Before starting, make sure you have at least those components on your workstation:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- An up-to-date release of [NodeJS](https://nodejs.org/) and NPM (Yarn is recommended)
+- A database: MySQL.
 
-## Installation
+### 1.2 Project configuration
 
-```bash
-$ npm install
+Start by cloning this project on your workstation.
+
+```sh
+git clone https://github.com/zinza-d2-training/hieptd-nestjs.git
 ```
 
-## Running the app
+The next thing will be to install all the dependencies of the project.
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```sh
+cd ./hieptd-nestjs
+npm install
 ```
 
-## Test
+or
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```sh
+cd ./hieptd-nestjs
+yarn install
 ```
 
-## Support
+Once the dependencies are installed :
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- You can now configure your project by creating a new `.env` file containing your environment variables used for development.
+- Place the file in the root of your project.
+- Example: `.env.example`
+- Copy `.env,example` to `.env`
 
-## Stay in touch
+```sh
+cp .env.example .env
+vi .env
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Configure your database, environment variables by editing the `.env` file.
 
-## License
+```sh
+#Database mysql
+PORT=5000
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_DATABASE=projectmanager
+DB_LOGGING=true
+JWT_SECRET=YOUR_SECRET_KEY
+SALT_ROUND=10
 
-Nest is [MIT licensed](LICENSE).
+# mail
+MAIL_HOST=smtp.gmail.com
+MAIL_USER=your_mail
+MAIL_PASSWORD=your_pass_smtp
+MAIL_FROM=your_mailFrom
+
+# optional
+MAIL_TRANSPORT=smtp://${MAIL_USER}:${MAIL_PASSWORD}@${MAIL_HOST}
+```
+
+- Get SMTP password in Gmail https://hotter.io/docs/email-accounts/app-password-gmail/
+
+### 1.3 Launch
+
+### 1.3.1 Perform migrations in your database using TypeORM (include seeder data)
+
+- Seed data: 100 users, 100 projects, 1000 tasks
+- Default admin account :
+
+```
+username:admin
+password:111111
+```
+
+Then
+
+```sh
+
+npm run migration:run
+## or
+yarn run migration:run
+```
+
+```sh
+# Launch the development server with TSNode
+## using npm
+npm start:dev
+## or
+yarn start:dev
+```
+
+You can now head to http://localhost:5000 and see the application in action.
