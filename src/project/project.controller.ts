@@ -50,7 +50,13 @@ export class ProjectController {
   async createProject(
     @Body() project: CreateProjectDto,
   ): Promise<Response<Project>> {
+    if (project.memberIds) {
+      project.memberIds = Array.from(project.memberIds, (x) =>
+        Number(x),
+      ).filter((x) => !isNaN(x));
+    }
     const data = await this.projectService.createProject(project);
+
     return {
       message: 'Create project successfully',
       error: false,

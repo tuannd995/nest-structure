@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { UsersProjects } from 'src/common/Entities/Users__Projects.entity';
 import { TaskFilterDto } from 'src/task/dto/filter.dto';
 import { TaskService } from 'src/task/task.service';
 import { User } from 'src/user/entities/user.entity';
@@ -27,6 +28,8 @@ export class ProjectService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
+    @InjectRepository(UsersProjects)
+    private readonly usersProjectsRepository: Repository<UsersProjects>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     @Inject(forwardRef(() => TaskService))
@@ -135,12 +138,16 @@ export class ProjectService {
     project.endDate = endDate;
     project.pmId = pmId;
     project.status = status;
-    if (memberIds) {
-      const users = await this.userService.findUsersWithIds(memberIds);
-      project.members = users;
-    }
 
     await this.projectRepository.save(project);
+    if (memberIds) {
+      for (const memberId of memberIds) {
+        await this.usersProjectsRepository.insert({
+          user_id: memberId,
+          project_id: project.id,
+        });
+      }
+    }
     return project;
   }
 
